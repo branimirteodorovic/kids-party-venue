@@ -31,6 +31,7 @@ builder.Services.AddApplication(KidsPartyVenue.Application.AssemblyReference.Ass
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 
 builder.Services.AddInfrastructure(
+    builder.Configuration,
     databaseConnectionString);
 
 builder.Services.AddPresentation();

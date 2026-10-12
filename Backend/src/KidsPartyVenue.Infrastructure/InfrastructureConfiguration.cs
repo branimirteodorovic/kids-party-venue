@@ -11,6 +11,7 @@ using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
@@ -21,6 +22,7 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
+        IConfiguration configuration,
         string databaseConnectionString)
     {
         services.AddAuthenticationInternal();
@@ -47,6 +49,10 @@ public static class InfrastructureConfiguration
 
         SqlMapper.AddTypeHandler(new GenericArrayHandler<string>());
 
+        services.AddHybridCache(o => o.DefaultEntryOptions = new() 
+        {
+            Expiration = TimeSpan.FromMinutes(configuration.GetValue("Caching:DefaultExpirationInMinutes", 5)) 
+        });
         services.TryAddSingleton<ICacheService, CacheService>();
 
         return services;
