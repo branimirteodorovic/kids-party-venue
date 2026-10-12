@@ -9,13 +9,12 @@ using KidsPartyVenue.Infrastructure.Caching;
 using KidsPartyVenue.Infrastructure.Clock;
 using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.EntityFrameworkCore.SqlServer.Extensions;
-using StackExchange.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Npgsql;
+using StackExchange.Redis;
 
 namespace KidsPartyVenue.Infrastructure;
 
@@ -32,13 +31,15 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.TryAddScoped<IDbConnectionFactory>(sp => new DbConnectionFactory(databaseConnectionString));
+        NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
+        services.TryAddSingleton(npgsqlDataSource);
+        services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
         services.AddDbContext<KidsPartyVenueDbContext>((sp, options) =>
             options
-            .UseAzureSql(
+            .UseNpgsql(
                     databaseConnectionString,
-                    sqlServerOptions => sqlServerOptions
+                    npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName))
                 .UseSnakeCaseNamingConvention());
 

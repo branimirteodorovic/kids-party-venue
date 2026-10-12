@@ -1,13 +1,13 @@
 ﻿using KidsPartyVenue.Application.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.Data.Common;
 
 namespace KidsPartyVenue.Infrastructure.Data;
 
-internal sealed class DbConnectionFactory(string connectionString) : IDbConnectionFactory
+internal sealed class DbConnectionFactory(NpgsqlDataSource dataSource) : IDbConnectionFactory
 {
     public async ValueTask<DbConnection> OpenConnectionAsync()
     {
-        return new SqlConnection(connectionString);
+        return await dataSource.OpenConnectionAsync();
     }
 }

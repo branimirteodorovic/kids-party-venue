@@ -38,7 +38,7 @@ builder.Services.AddInfrastructure(
 builder.Services.AddPresentation();
 
 builder.Services.AddHealthChecks()
-    .AddSqlServer(databaseConnectionString)
+    .AddNpgSql(databaseConnectionString)
     .AddRedis(redisConnectionString);
 
 var app = builder.Build();

@@ -212,3 +212,5 @@ FakesAssemblies/
 # dotenv environment variables file
 .env
 
+# Containers
+.containers/

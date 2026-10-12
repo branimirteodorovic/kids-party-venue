@@ -4,3 +4,25 @@ services:
     build:
       context: .
       dockerfile: src/KidsPartyVenue.API/Dockerfile
+    environment:
+      - ConnectionStrings__Database=Host=kidspartyvenue.database;Port=5432;Database=kidspartyvenue;Username=postgres;Password=postgres;Include Error Detail=true
+    depends_on:
+      kidspartyvenue.database:
+        condition: service_healthy
+
+  kidspartyvenue.database:
+    image: postgis/postgis:18-3.6
+    container_name: KidsPartyVenue.Database
+    environment:
+      - POSTGRES_DB=kidspartyvenue
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/db:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kidspartyvenue"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
