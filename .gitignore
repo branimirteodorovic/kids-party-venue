@@ -209,4 +209,6 @@ FakesAssemblies/
 # JetBrains Rider
 *.sln.iml
 
+# dotenv environment variables file
+.env
 

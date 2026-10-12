@@ -1,0 +1,6 @@
+services:
+  kidspartyvenue.api:
+    image: ${DOCKER_REGISTRY-}kidspartyvenueapi
+    build:
+      context: .
+      dockerfile: src/KidsPartyVenue.API/Dockerfile
