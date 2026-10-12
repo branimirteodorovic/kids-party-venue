@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="KidsPartyVenue.API/KidsPartyVenue.API.csproj" />
+  <Project Path="KidsPartyVenue.Application/KidsPartyVenue.Application.csproj" />
+  <Project Path="KidsPartyVenue.Domain/KidsPartyVenue.Domain.csproj" />
+  <Project Path="KidsPartyVenue.Infrastructure/KidsPartyVenue.Infrastructure.csproj" />
+  <Project Path="KidsPartyVenue.Presentation/KidsPartyVenue.Presentation.csproj" />
+</Solution>

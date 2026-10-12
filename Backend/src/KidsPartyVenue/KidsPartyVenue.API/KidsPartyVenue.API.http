@@ -1,0 +1,6 @@
+@KidsPartyVenue.API_HostAddress = http://localhost:5233
+
+GET {{KidsPartyVenue.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
