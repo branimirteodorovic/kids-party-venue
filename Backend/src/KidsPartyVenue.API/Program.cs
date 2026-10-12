@@ -29,17 +29,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication(KidsPartyVenue.Application.AssemblyReference.Assembly);
 
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
-string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow("Cache");
 
 builder.Services.AddInfrastructure(
-    databaseConnectionString,
-    redisConnectionString);
+    databaseConnectionString);
 
 builder.Services.AddPresentation();
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(databaseConnectionString)
-    .AddRedis(redisConnectionString);
+    .AddNpgSql(databaseConnectionString);
 
 var app = builder.Build();
 
