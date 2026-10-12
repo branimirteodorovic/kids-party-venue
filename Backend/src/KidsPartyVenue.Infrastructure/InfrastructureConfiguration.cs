@@ -10,7 +10,6 @@ using KidsPartyVenue.Infrastructure.Clock;
 using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -31,16 +30,18 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
+        // One data source (connection pool) shared by Dapper, EF Core and the health check
+        NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString)
+            .UseNetTopologySuite()
+            .Build();
         services.TryAddSingleton(npgsqlDataSource);
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
-        services.AddDbContext<KidsPartyVenueDbContext>((sp, options) =>
+        services.AddDbContext<KidsPartyVenueDbContext>(options =>
             options
-            .UseNpgsql(
-                    databaseConnectionString,
-                    npgsqlOptions => npgsqlOptions
-                        .MigrationsHistoryTable(HistoryRepository.DefaultTableName))
+                .UseNpgsql(
+                    npgsqlDataSource,
+                    npgsqlOptions => npgsqlOptions.UseNetTopologySuite())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<KidsPartyVenueDbContext>());

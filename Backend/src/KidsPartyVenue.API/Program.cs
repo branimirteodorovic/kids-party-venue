@@ -7,6 +7,7 @@ using KidsPartyVenue.Infrastructure.Configuration;
 using KidsPartyVenue.Presentation;
 using KidsPartyVenue.Presentation.Endpoints;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Npgsql;
 using Serilog;
 using Scalar.AspNetCore;
 
@@ -37,7 +38,7 @@ builder.Services.AddInfrastructure(
 builder.Services.AddPresentation();
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(databaseConnectionString);
+    .AddNpgSql(sp => sp.GetRequiredService<NpgsqlDataSource>());
 
 var app = builder.Build();
 
