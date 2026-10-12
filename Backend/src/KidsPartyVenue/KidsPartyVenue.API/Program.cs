@@ -1,8 +1,45 @@
+using HealthChecks.UI.Client;
+using KidsPartyVenue.API.Extensions;
+using KidsPartyVenue.API.Middleware;
+using KidsPartyVenue.Application;
+using KidsPartyVenue.Infrastructure;
+using KidsPartyVenue.Infrastructure.Configuration;
+using KidsPartyVenue.Presentation;
+using KidsPartyVenue.Presentation.Endpoints;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddEndpointsApiExplorer();
+
+// TODO: Is swagger needed when we have OpenApi?
+//builder.Services.AddSwaggerDocumentation();
+
+builder.Services.AddApplication(KidsPartyVenue.Application.AssemblyReference.Assembly);
+
+string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
+string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow("Cache");
+
+builder.Services.AddInfrastructure(
+    databaseConnectionString,
+    redisConnectionString);
+
+builder.Services.AddPresentation();
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(databaseConnectionString)
+    .AddRedis(redisConnectionString);
 
 var app = builder.Build();
 
@@ -10,32 +47,27 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+    app.MapGet("/", () => Results.Redirect("/scalar"));
+
+    app.ApplyMigrations();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+app.MapHealthChecks("health", new HealthCheckOptions
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseLogContextTraceLogging();
+
+app.UseSerilogRequestLogging();
+
+app.UseExceptionHandler();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapEndpoints();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -10,9 +10,9 @@ public static class ApplicationConfiguration
 {
     public static IServiceCollection AddApplication(
         this IServiceCollection services,
-        Assembly[] moduleAssemblies)
+        Assembly assembly)
     {
-        services.Scan(scan => scan.FromAssemblies(moduleAssemblies)
+        services.Scan(scan => scan.FromAssemblies(assembly)
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
@@ -38,7 +38,7 @@ public static class ApplicationConfiguration
         services.Decorate(typeof(ICommandHandler<>), typeof(ExceptionHandlingDecorator.CommandHandler<>));
         services.Decorate(typeof(IQueryHandler<,>), typeof(ExceptionHandlingDecorator.QueryHandler<,>));
 
-        services.AddValidatorsFromAssemblies(moduleAssemblies, includeInternalTypes: true);
+        services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
         return services;
     }
