@@ -5,24 +5,58 @@ services:
       context: .
       dockerfile: src/KidsPartyVenue.API/Dockerfile
     environment:
-      - ConnectionStrings__Database=Host=kidspartyvenue.database;Port=5432;Database=kidspartyvenue;Username=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__Database=Host=kidspartyvenue.database;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true
+      - Serilog__WriteTo__1__Args__serverUrl=http://kidspartyvenue.seq:5341
     depends_on:
       kidspartyvenue.database:
         condition: service_healthy
+      kidspartyvenue.seq:
+        condition: service_started
 
   kidspartyvenue.database:
     image: postgis/postgis:18-3.6
     container_name: KidsPartyVenue.Database
     environment:
-      - POSTGRES_DB=kidspartyvenue
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./.containers/db:/var/lib/postgresql
     ports:
       - 5433:5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d kidspartyvenue"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  kidspartyvenue.seq:
+    image: datalust/seq:latest          # pin to the current version from Docker Hub
+    container_name: KidsPartyVenue.Seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true   # local dev only
+    volumes:
+      - ./.containers/seq:/data
+    ports:
+      - 8090:80       # UI      -> http://localhost:8090
+      - 5341:5341     # ingestion (used by `dotnet run` on the host)
+
+  kidspartyvenue.mailpit:
+    image: axllent/mailpit:latest       # pin as well
+    container_name: KidsPartyVenue.Mailpit
+    ports:
+      - 8025:8025     # UI   -> http://localhost:8025
+      - 1025:1025     # SMTP
+
+  kidspartyvenue.pgadmin:
+    image: dpage/pgadmin4:latest        # pin as well
+    container_name: KidsPartyVenue.PgAdmin
+    profiles: [tools]
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - ./.containers/pgadmin:/var/lib/pgadmin
+    ports:
+      - 5050:80       # -> http://localhost:5050, server host: kidspartyvenue.database, port 5432
