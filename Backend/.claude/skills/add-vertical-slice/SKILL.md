@@ -131,7 +131,7 @@ internal sealed class CreateVenue : IEndpoint
 
 - Endpoints are discovered automatically (`AddEndpoints` scans the Presentation assembly). GET endpoints bind route and query parameters directly instead of using a `Request` class.
 - Keep tag names in `Presentation/Tags.cs` (create it if missing).
-- Auth is deferred to Phase 7. After that, add `.RequireAuthorization(Permissions.X)` to every non-public endpoint.
+- Auth arrives in step 0.6 of `docs/implementation-plan.md`. After that, add `.RequireAuthorization(Permissions.X)` to every non-public endpoint, and the provider-membership policy (step 1.10) to endpoints under `providers/{providerId}/...`.
 
 ## 4. Infrastructure (when persistence changes): `src/KidsPartyVenue.Infrastructure/<FeatureArea>/`
 

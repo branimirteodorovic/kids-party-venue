@@ -21,6 +21,7 @@ Detailed rules: [.claude/rules/architecture.md](.claude/rules/architecture.md), 
 - **Caching**: `HybridCache` (in-memory only, no Redis) behind `ICacheService` (`GetOrCreateAsync` / `SetAsync` / `RemoveAsync`). The default expiration comes from `Caching:DefaultExpirationInMinutes`.
 - **Logging**: Serilog, configured from the `Serilog` section in appsettings, writing to the console.
 - **IDs**: `Guid.CreateVersion7()` stored as `uuid`.
+- **Ongoing work**: see [docs/implementation-plan.md](docs/implementation-plan.md). All work happens directly on `main`; don't create branches.
 
 ## Configuration
 

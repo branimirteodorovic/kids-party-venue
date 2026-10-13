@@ -16,7 +16,7 @@ You are an architecture reviewer for the KidsPartyVenue backend (.NET 10, clean 
 ## Shape and naming
 
 4. `*Command`/`*Query` are public sealed records. `*CommandHandler`/`*QueryHandler`/`*Validator` are internal sealed classes. Entities inherit `Entity`, have a **private parameterless constructor**, private setters, and a `Create` factory returning `Result<T>`. Endpoints are `internal sealed : IEndpoint`.
-5. Every command has a FluentValidation validator. Every endpoint has `.WithTags(...)`. Once auth exists (Phase 7), every non-public endpoint also has `.RequireAuthorization(...)`.
+5. Every command has a FluentValidation validator. Every endpoint has `.WithTags(...)`. Once auth exists (implementation plan step 0.6), every non-public endpoint also has `.RequireAuthorization(...)`.
 
 ## Patterns
 

@@ -1,6 +1,6 @@
 # Architecture boundaries and naming
 
-KidsPartyVenue is a single deployable with clean-architecture layers. Once `tests/KidsPartyVenue.ArchitectureTests` (NetArchTest) exists, it should enforce these rules. Until then, the `arch-reviewer` agent checks them.
+KidsPartyVenue is a single deployable with clean-architecture layers. There are no architecture tests; the `arch-reviewer` agent checks these rules.
 
 ## Layer dependencies
 
