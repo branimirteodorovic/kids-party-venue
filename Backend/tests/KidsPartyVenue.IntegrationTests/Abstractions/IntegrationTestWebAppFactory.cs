@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Testcontainers.PostgreSql;
 
@@ -15,7 +14,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        Environment.SetEnvironmentVariable("ConnectionStrings:Database", _dbContainer.GetConnectionString());
+        Environment.SetEnvironmentVariable("ConnectionStrings__Database", _dbContainer.GetConnectionString());
+        Environment.SetEnvironmentVariable("BackgroundJobs__ServerEnabled", "false");
     }
 
     public async Task InitializeAsync()

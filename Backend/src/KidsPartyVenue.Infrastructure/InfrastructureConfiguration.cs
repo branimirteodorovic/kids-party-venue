@@ -5,6 +5,7 @@ using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Data;
 using KidsPartyVenue.Infrastructure.Authentication;
 using KidsPartyVenue.Infrastructure.Authorization;
+using KidsPartyVenue.Infrastructure.BackgroundJobs;
 using KidsPartyVenue.Infrastructure.Caching;
 using KidsPartyVenue.Infrastructure.Clock;
 using KidsPartyVenue.Infrastructure.Data;
@@ -55,6 +56,8 @@ public static class InfrastructureConfiguration
             Expiration = TimeSpan.FromMinutes(configuration.GetValue("Caching:DefaultExpirationInMinutes", 5)) 
         });
         services.TryAddSingleton<ICacheService, CacheService>();
+
+        services.AddBackgroundJobs(configuration, databaseConnectionString);
 
         return services;
     }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Npgsql;
 using Serilog;
 using Scalar.AspNetCore;
+using KidsPartyVenue.Infrastructure.BackgroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,9 @@ if (app.Environment.IsDevelopment())
 
     app.ApplyMigrations();
 }
+
+app.UseBackgroundJobsDashboard(app.Configuration);
+app.RegisterRecurringJobs();
 
 app.MapHealthChecks("health", new HealthCheckOptions
 {
