@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/tests/">
+    <Project Path="tests/KidsPartyVenue.IntegrationTests/KidsPartyVenue.IntegrationTests.csproj" Id="9e8b0f53-c976-4230-9481-c5cfdf04e06f" />
     <Project Path="tests/KidsPartyVenue.UnitTests/KidsPartyVenue.UnitTests.csproj" Id="106b14b0-5644-4a64-a565-ea33867a1aee" />
   </Folder>
   <Project Path="docker-compose.dcproj">
