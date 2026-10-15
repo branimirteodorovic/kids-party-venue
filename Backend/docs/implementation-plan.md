@@ -321,6 +321,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 | P2.7 | Provider statistics |
 | P2.8 | SEO data endpoints (district × category listings, sitemap) |
 | P2.9 | Social sign-in: Google (ID token) and Facebook (access token checked through the Graph API), with account linking, pre-account-takeover protection and Facebook's data deletion callback |
+| P2.10 | Refresh token cleanup: a recurring Hangfire job that deletes refresh tokens that expired or were revoked more than a retention period ago (for example 30 days) |
 
 ## Phase 3
 

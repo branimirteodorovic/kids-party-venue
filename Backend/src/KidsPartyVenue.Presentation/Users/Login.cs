@@ -15,6 +15,7 @@ internal sealed class Login : IEndpoint
     {
         app.MapPost("auth/login", async (
             Request request,
+            HttpResponse httpResponse,
             ICommandHandler<LoginUserCommand, AuthTokens> handler,
             CancellationToken cancellationToken) =>
         {
@@ -22,14 +23,20 @@ internal sealed class Login : IEndpoint
 
             Result<AuthTokens> result = await handler.Handle(command, cancellationToken);
 
-            // TODO: set the refresh token cookie
-            return result.Match(
+            IResult response = result.Match(
                 tokens => Results.Ok(new Response
                 {
                     AccessToken = tokens.AccessToken,
                     AccessTokenExpiresAtUtc = tokens.AccessTokenExpiresAtUtc
                 }),
                 ApiResults.Problem);
+
+            if (result.IsSuccess)
+            {
+                RefreshTokenCookieHelper.Set(httpResponse, result.Value.RefreshToken, result.Value.RefreshTokenExpiresAtUtc);
+            }
+
+            return response;
         })
         .AllowAnonymous()
         .WithTags(Tags.Users);

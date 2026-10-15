@@ -7,6 +7,8 @@ namespace KidsPartyVenue.Infrastructure.Database;
 
 public class KidsPartyVenueDbContext(DbContextOptions<KidsPartyVenueDbContext> options) : IdentityDbContext<User, Role, Guid>(options), IUnitOfWork
 {
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
