@@ -1,6 +1,6 @@
 ﻿using KidsPartyVenue.Domain;
 
-namespace KidsPartyVenue.Presentation.Results;
+namespace KidsPartyVenue.Presentation;
 
 public static class ResultExtensions
 {

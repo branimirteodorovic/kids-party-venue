@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Security.Cryptography;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Testcontainers.PostgreSql;
 
@@ -16,6 +17,10 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     {
         Environment.SetEnvironmentVariable("ConnectionStrings__Database", _dbContainer.GetConnectionString());
         Environment.SetEnvironmentVariable("BackgroundJobs__ServerEnabled", "false");
+        // CI has no user secrets; a random key per run is enough for tests
+        Environment.SetEnvironmentVariable(
+            "Authentication__SigningKey",
+            Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)));
     }
 
     public async Task InitializeAsync()

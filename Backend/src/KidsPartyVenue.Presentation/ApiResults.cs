@@ -1,7 +1,7 @@
 ﻿using KidsPartyVenue.Domain;
 using Microsoft.AspNetCore.Http;
 
-namespace KidsPartyVenue.Presentation.Results;
+namespace KidsPartyVenue.Presentation;
 
 public static class ApiResults
 {
@@ -26,6 +26,8 @@ public static class ApiResults
                 ErrorType.Problem => error.Code,
                 ErrorType.NotFound => error.Code,
                 ErrorType.Conflict => error.Code,
+                ErrorType.Unauthorized => error.Code,
+                ErrorType.Forbidden => error.Code,
                 _ => "Server failure"
             };
 
@@ -36,6 +38,8 @@ public static class ApiResults
                 ErrorType.Problem => error.Description,
                 ErrorType.NotFound => error.Description,
                 ErrorType.Conflict => error.Description,
+                ErrorType.Unauthorized => error.Description,
+                ErrorType.Forbidden => error.Description,
                 _ => "An unexpected error occurred"
             };
 
@@ -46,6 +50,8 @@ public static class ApiResults
                 ErrorType.Problem => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                 ErrorType.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
                 ErrorType.Conflict => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                ErrorType.Unauthorized => "https://www.rfc-editor.org/info/rfc7235/#section-3.1",
+                ErrorType.Forbidden => "https://www.rfc-editor.org/info/rfc7231/#section-6.5.3",
                 _ => "https://tools.ietf.org/html/rfc7231#section-6.6.1"
             };
 
@@ -56,6 +62,8 @@ public static class ApiResults
                 ErrorType.Problem => StatusCodes.Status400BadRequest,
                 ErrorType.NotFound => StatusCodes.Status404NotFound,
                 ErrorType.Conflict => StatusCodes.Status409Conflict,
+                ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+                ErrorType.Forbidden => StatusCodes.Status403Forbidden,
                 _ => StatusCodes.Status500InternalServerError
             };
 

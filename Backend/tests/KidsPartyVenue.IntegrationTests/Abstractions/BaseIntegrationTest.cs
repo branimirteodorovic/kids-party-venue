@@ -13,11 +13,13 @@ public abstract class BaseIntegrationTest : IDisposable
     protected static readonly Faker Faker = new();
     private readonly IServiceScope _scope;
     protected readonly KidsPartyVenueDbContext DbContext;
+    protected readonly HttpClient HttpClient;
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
     {
         _scope = factory.Services.CreateScope();
         DbContext = _scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+        HttpClient = factory.CreateClient();
     }
 
     protected async Task<Result<TResult>> SendCommand<TCommand, TResult>(TCommand command)
@@ -57,6 +59,7 @@ public abstract class BaseIntegrationTest : IDisposable
 
     public void Dispose()
     {
+        HttpClient.Dispose();
         _scope.Dispose();
     }
 }

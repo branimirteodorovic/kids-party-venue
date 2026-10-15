@@ -7,6 +7,8 @@ services:
     environment:
       - ConnectionStrings__Database=Host=kidspartyvenue.database;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true
       - Serilog__WriteTo__1__Args__serverUrl=http://kidspartyvenue.seq:5341
+      - Authentication__SigningKey=${JWT_SIGNING_KEY}
+      - Seed__AdminPassword=${SEED_ADMIN_PASSWORD:-}
     depends_on:
       kidspartyvenue.database:
         condition: service_healthy

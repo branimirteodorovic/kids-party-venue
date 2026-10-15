@@ -4,6 +4,7 @@ using KidsPartyVenue.API.Middleware;
 using KidsPartyVenue.Application;
 using KidsPartyVenue.Infrastructure;
 using KidsPartyVenue.Infrastructure.Configuration;
+using KidsPartyVenue.Infrastructure.Identity;
 using KidsPartyVenue.Presentation;
 using KidsPartyVenue.Presentation.Endpoints;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -51,6 +52,8 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/", () => Results.Redirect("/scalar"));
 
     app.ApplyMigrations();
+
+    await app.SeedDevelopmentDataAsync();
 }
 
 app.UseBackgroundJobsDashboard(app.Configuration);

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using KidsPartyVenue.Application.Abstractions.Authentication;
 using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
