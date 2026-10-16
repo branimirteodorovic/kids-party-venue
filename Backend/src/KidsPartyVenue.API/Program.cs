@@ -26,9 +26,6 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddEndpointsApiExplorer();
 
-// TODO: Is swagger needed when we have OpenApi?
-//builder.Services.AddSwaggerDocumentation();
-
 builder.Services.AddApplication(KidsPartyVenue.Application.AssemblyReference.Assembly);
 
 string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");

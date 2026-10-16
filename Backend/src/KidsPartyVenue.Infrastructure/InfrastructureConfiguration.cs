@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using KidsPartyVenue.Application.Abstractions.Authentication;
 using KidsPartyVenue.Application.Abstractions.Data;
+using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Data;
@@ -11,6 +12,7 @@ using KidsPartyVenue.Infrastructure.Caching;
 using KidsPartyVenue.Infrastructure.Clock;
 using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
+using KidsPartyVenue.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +49,7 @@ public static class InfrastructureConfiguration
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<KidsPartyVenueDbContext>());
+        services.AddScoped<IUserContext, UserContext>();
 
         // TODO: Add repositories
 

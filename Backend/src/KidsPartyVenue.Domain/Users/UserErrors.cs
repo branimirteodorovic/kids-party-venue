@@ -8,4 +8,5 @@ public static class UserErrors
     public static readonly Error RoleAssignmentFailed = Error.Failure("Users.RoleAssignmentFailed", "Could not assign the default role to the user");
     public static readonly Error InvalidRefreshToken = Error.Unauthorized("Users.InvalidRefreshToken", "Refresh token is invalid");
     public static readonly Error NotFound = Error.NotFound("Users.NotFound", "User is not found");
+    public static readonly Error IdentityIdMalformed = Error.Validation("Users.IdentityIdMalformed", "IdentityId is malformed");
 }

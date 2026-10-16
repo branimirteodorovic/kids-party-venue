@@ -54,7 +54,6 @@ services:
   kidspartyvenue.pgadmin:
     image: dpage/pgadmin4:latest        # pin as well
     container_name: KidsPartyVenue.PgAdmin
-    profiles: [tools]
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
