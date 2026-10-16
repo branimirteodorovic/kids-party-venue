@@ -14,6 +14,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 | Hosting | One VPS per environment: Docker Compose + Caddy | Images in GHCR, deployed over SSH. Migrations run as a separate step (EF Core migration bundle). |
 | Money and time | `decimal` in RSD; UTC `timestamptz` in the database | Local dates and times in `Europe/Belgrade` for party dates and availability rules. |
 | API contracts | Paging, ProblemDetails, stable DTOs | Times are returned both as UTC instants and as local date and time. |
+| Analytics | Anonymous search and engagement events, aggregated without provider IDs | No names, phone numbers or IP addresses. Other providers' data is never used for a provider's suggestions, and suggestions never include prices. |
 
 ## Delivery conventions
 
@@ -176,7 +177,13 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Ranking by relevance, paid plan, profile completeness, recent activity and rating.
 - Sponsored results flagged `IsSponsored`.
 - Short-lived cached result pages.
-- An asynchronous search log, with zero-result searches flagged.
+- An asynchronous, anonymous search log: category, requested date and part of day, days ahead, districts, guest counts, child age, filters and result count, with zero-result searches flagged.
+- Searches are logged only when a parent runs a search, not on every filter change or page.
+- A random session ID that isn't linked to a user or inquiry counts repeated searches once. Whether to keep it, and how to store it, is decided during implementation.
+
+### 3.8 Engagement events
+- Anonymous events per provider: search impression (with position), profile view, slot click, inquiry started and inquiry sent.
+- Recorded asynchronously, with bot traffic filtered out at request time. Used for provider statistics (P2.7) and provider suggestions (P3.7).
 
 ---
 
@@ -294,6 +301,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ### 8.1 Data retention
 - Anonymize parent contact data on old inquiries.
+- Delete individual search and engagement events after 18 months; only aggregates are kept.
 
 ### 8.2 Production environment
 - A separate production server.
@@ -334,6 +342,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 | P3.4 | Party invitations and RSVPs, with order updates based on confirmed guests |
 | P3.5 | Card payments: tokenization, recurring charges, idempotent webhooks, charge retries |
 | P3.6 | Birthday reminders |
+| P3.7 | Provider suggestions (paid plans only): a weekly job aggregates anonymous searches and chosen slots by district, weekday, part of day and start time, with no provider ID in the aggregate. Rule classes compare demand with each provider's own schedule and profile (new slots, full days, start times, booking horizon, age range, guest count, unmarked amenities and rules, profile views). Suggestions are template text about high demand, never prices, and only appear above a minimum-data threshold. A provider only sees them, there is no accept or dismiss. A unique `(provider, type, subject key)` index ensures the same suggestion is never created twice. Outcomes are measured when the provider's schedule changes to match a suggestion. |
 
 ---
 
@@ -346,6 +355,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
      └─> 0.6 identity ──> 1.8 admin create
                       └─> 1.10 membership ──> 1.12 self-registration, 2.8 claim
 M1 providers ──> M3 media and search
+3.7 search log, 3.8 engagement events ──> P2.7 statistics, P3.7 provider suggestions
 M1 providers ──> M4 availability ──> M5 inquiries ──> 5.8 notifications
 6.1 subscriptions ─┬─> 6.2 feature access ──> 3.7 ranking with real plan data
                    └─> 6.6 / 6.8 billing jobs
