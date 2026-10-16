@@ -9,7 +9,7 @@ namespace KidsPartyVenue.IntegrationTests.Users;
 public sealed class LoginTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
     [Fact]
-    public async Task Login_ShouldReturnAccessToken_WhenCredentialsAreValid()
+    public async Task Login_ShouldReturnAccessTokenAndSetCookie_WhenCredentialsAreValid()
     {
         // Arrange
         RegisterRequest request = UserRequests.NewRegisterRequest(Faker);
@@ -27,6 +27,14 @@ public sealed class LoginTests(IntegrationTestWebAppFactory factory) : BaseInteg
         var token = new JsonWebToken(body.AccessToken);
         token.Subject.Should().Be(registered!.UserId.ToString());
         token.GetClaim(JwtRegisteredClaimNames.Email).Value.Should().Be(request.Email);
+
+        string? setCookie = response.GetRefreshTokenSetCookie();
+        setCookie.Should().NotBeNull();
+        setCookie!.Should().ContainEquivalentOf("httponly")
+            .And.ContainEquivalentOf("secure")
+            .And.ContainEquivalentOf("samesite=strict")
+            .And.ContainEquivalentOf("path=/auth");
+        response.GetRefreshTokenCookie().Should().NotBeNullOrEmpty();
     }
 
     [Fact]

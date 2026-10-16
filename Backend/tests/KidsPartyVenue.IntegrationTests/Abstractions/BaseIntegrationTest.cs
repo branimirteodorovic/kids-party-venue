@@ -2,6 +2,7 @@
 using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Domain;
 using KidsPartyVenue.Infrastructure.Database;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +20,9 @@ public abstract class BaseIntegrationTest : IDisposable
     {
         _scope = factory.Services.CreateScope();
         DbContext = _scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
-        HttpClient = factory.CreateClient();
+        // The refresh cookie is Secure and the test server is http, so the cookie container would never send it back.
+        // Tests read Set-Cookie and send the Cookie header themselves.
+        HttpClient = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
     }
 
     protected async Task<Result<TResult>> SendCommand<TCommand, TResult>(TCommand command)
