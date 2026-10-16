@@ -23,7 +23,7 @@ internal sealed class CustomClaimsTransformation(IServiceScopeFactory serviceSco
 
         string identityId = principal.GetIdentityId();
 
-        Result<PermissionsResponse> result = await permissionService.GetUserPermissionsAsync(identityId);
+        Result<PermissionsResponse> result = await permissionService.GetUserPermissionsAsync(identityId, CancellationToken.None);
 
         if (result.IsFailure)
         {

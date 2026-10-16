@@ -2,4 +2,4 @@
 
 namespace KidsPartyVenue.Application.Users.GetCurrentUser;
 
-public sealed class GetCurrentUserQuery : IQuery<CurrentUserResponse>;
+public sealed record GetCurrentUserQuery : IQuery<CurrentUserResponse>;

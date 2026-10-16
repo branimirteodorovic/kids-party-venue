@@ -1,6 +1,7 @@
 ﻿using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Application.Users.GetCurrentUser;
+using KidsPartyVenue.Domain;
 using KidsPartyVenue.Presentation.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,7 @@ internal sealed class GetCurrentUser : IEndpoint
             IQueryHandler<GetCurrentUserQuery, CurrentUserResponse> handler,
             CancellationToken cancellationToken) => 
         {
-            var result = await handler.Handle(new GetCurrentUserQuery(), cancellationToken);
+            Result<CurrentUserResponse> result = await handler.Handle(new GetCurrentUserQuery(), cancellationToken);
             return result.Match(Results.Ok, ApiResults.Problem);
         })
             .RequireAuthorization(Permissions.UsersReadSelf)

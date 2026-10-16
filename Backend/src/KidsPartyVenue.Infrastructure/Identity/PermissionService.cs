@@ -1,14 +1,18 @@
-﻿using KidsPartyVenue.Application.Authorization;
+﻿using Dapper;
+using KidsPartyVenue.Application.Authorization;
+using KidsPartyVenue.Application.Data;
 using KidsPartyVenue.Domain;
 using KidsPartyVenue.Domain.Users;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Data.Common;
 
 namespace KidsPartyVenue.Infrastructure.Identity;
 
-internal sealed class PermissionService(UserManager<User> userManager, ILogger<PermissionService> logger) : IPermissionService
+internal sealed class PermissionService(
+    IDbConnectionFactory dbConnectionFactory,
+    ILogger<PermissionService> logger) : IPermissionService
 {
-    public async Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId)
+    public async Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(identityId, out Guid id))
         {
@@ -16,21 +20,39 @@ internal sealed class PermissionService(UserManager<User> userManager, ILogger<P
             return Result.Failure<PermissionsResponse>(UserErrors.IdentityIdMalformed);
         }
 
-        User? user = await userManager.FindByIdAsync(id.ToString());
+        await using DbConnection dbConnection = await dbConnectionFactory.OpenConnectionAsync();
+
+        const string sql = $"""
+                SELECT 
+                    u.id AS {nameof(UserRow.Id)},
+                    COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), ARRAY[]::text[])
+                        AS {nameof(UserRow.Roles)}
+                FROM identity.users u
+                LEFT JOIN identity.user_roles ur ON ur.user_id = u.id
+                LEFT JOIN identity.roles r ON r.id = ur.role_id
+                WHERE u.id = @UserId
+                GROUP BY u.id, u.email, u.full_name
+            """;
+
+        UserRow? user = await dbConnection.QuerySingleOrDefaultAsync<UserRow>(
+            new CommandDefinition(sql, new { UserId = id }, cancellationToken: cancellationToken));
 
         if (user is null)
         {
             return Result.Failure<PermissionsResponse>(UserErrors.NotFound);
         }
-
-        IList<string> roles = await userManager.GetRolesAsync(user);
-        HashSet<string> rolePermissions = [.. roles.SelectMany(RolePermissions.For)];
-
+        HashSet<string> rolePermissions = GetPermissionsFromRoles(user.Roles);
         return Result.Success(new PermissionsResponse(user.Id, rolePermissions));
     }
 
     public HashSet<string> GetPermissionsFromRoles(IEnumerable<string> roles)
     {
         return [.. roles.SelectMany(RolePermissions.For)];
+    }
+
+    private sealed class UserRow
+    {
+        public Guid Id { get; init; }
+        public string[] Roles { get; init; } = [];
     }
 }

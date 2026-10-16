@@ -4,7 +4,7 @@ namespace KidsPartyVenue.Application.Authorization;
 
 public interface IPermissionService
 {
-    Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId);
+    Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId, CancellationToken cancellationToken);
 
     HashSet<string> GetPermissionsFromRoles(IEnumerable<string> roles);
 }
