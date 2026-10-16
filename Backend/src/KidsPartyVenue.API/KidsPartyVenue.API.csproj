@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="KidsPartyVenue.IntegrationTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KidsPartyVenue.Infrastructure\KidsPartyVenue.Infrastructure.csproj" />
   </ItemGroup>
 

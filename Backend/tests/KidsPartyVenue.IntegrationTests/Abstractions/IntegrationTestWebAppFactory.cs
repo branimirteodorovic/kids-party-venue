@@ -17,6 +17,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     {
         Environment.SetEnvironmentVariable("ConnectionStrings__Database", _dbContainer.GetConnectionString());
         Environment.SetEnvironmentVariable("BackgroundJobs__ServerEnabled", "false");
+        // Tests share one client IP, so the default limit would cause spurious 429s
+        Environment.SetEnvironmentVariable("RateLimiting__Auth__PermitLimit", "100000");
         // CI has no user secrets; a random key per run is enough for tests
         Environment.SetEnvironmentVariable(
             "Authentication__SigningKey",

@@ -2,6 +2,7 @@ using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Application.Users.Register;
 using KidsPartyVenue.Domain;
 using KidsPartyVenue.Presentation.Endpoints;
+using KidsPartyVenue.Presentation.RateLimiting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -24,6 +25,7 @@ internal sealed class Register : IEndpoint
             return result.Match(userId => Results.Ok(new Response { UserId = userId }), ApiResults.Problem);
         })
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Auth)
         .WithTags(Tags.Users);
     }
 

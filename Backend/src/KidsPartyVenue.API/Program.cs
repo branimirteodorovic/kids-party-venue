@@ -39,6 +39,9 @@ builder.Services.AddPresentation();
 builder.Services.AddHealthChecks()
     .AddNpgSql(sp => sp.GetRequiredService<NpgsqlDataSource>());
 
+builder.Services.AddForwardedHeaders(builder.Configuration);
+builder.Services.AddRateLimiting();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,6 +56,8 @@ if (app.Environment.IsDevelopment())
     await app.SeedDevelopmentDataAsync();
 }
 
+app.UseForwardedHeaders();
+
 app.UseBackgroundJobsDashboard(app.Configuration);
 app.RegisterRecurringJobs();
 
@@ -66,6 +71,8 @@ app.UseLogContextTraceLogging();
 app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 

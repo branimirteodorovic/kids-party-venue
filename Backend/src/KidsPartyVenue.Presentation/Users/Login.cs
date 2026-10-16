@@ -3,6 +3,7 @@ using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Application.Users.Login;
 using KidsPartyVenue.Domain;
 using KidsPartyVenue.Presentation.Endpoints;
+using KidsPartyVenue.Presentation.RateLimiting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -39,6 +40,7 @@ internal sealed class Login : IEndpoint
             return response;
         })
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Auth)
         .WithTags(Tags.Users);
     }
 
