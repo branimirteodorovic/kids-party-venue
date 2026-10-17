@@ -20,7 +20,8 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 - Trunk-based: work happens directly on `main`, in small, focused commits.
 - Each change comes with tests: unit tests for domain logic, integration tests (Testcontainers, `postgis/postgis`) for SQL, constraints and handlers.
-- CI runs on every push to `main`. A push to `main` deploys to staging.
+- CI runs on every push to `main`. Once staging exists (8.0), a push to `main` also deploys there.
+- Servers are added only when they're needed: development and tests run locally until the release milestone.
 - Schema changes go through EF Core migrations. Each vertical slice follows `.claude/rules/architecture.md`.
 
 ---
@@ -61,9 +62,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Moved after the MVP; see P2.9.
 
 ### 0.8 Staging deployment
-- A hardened VPS with Docker Compose: API, PostGIS, Seq and Caddy (automatic HTTPS).
-- The CI publishes the API and migrator images to GHCR, then deploys over SSH and runs migrations as a separate step.
-- Forwarded headers and persisted Data Protection keys.
+- Moved to 8.0, so no server runs before one is needed.
 
 ---
 
@@ -156,6 +155,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ### 3.1 File storage
 - `IFileStorage` with a local implementation, immutable keys and `Cache-Control: immutable` serving.
+- The API image creates a media folder writable by its non-root user.
 
 ### 3.2 Image pipeline
 - Uploads up to 10 MB, with JPEG, PNG, WebP or HEIC detected from the content.
@@ -166,6 +166,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ### 3.4 R2 storage
 - An S3-compatible implementation for Cloudflare R2, served from a custom media domain through the Cloudflare CDN.
+- Used only on servers, so it's built together with staging (8.0).
 
 ### 3.5 Search with filters
 - Dapper search by category, district or service area, capacity, age, price and amenities, with PostGIS radius and distance ordering, and paging.
@@ -299,6 +300,12 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ## Milestone 8 — Phase 1 release
 
+### 8.0 Staging deployment
+- Set up before production, or earlier once someone else needs a running environment.
+- A hardened VPS with Docker Compose: API, PostGIS, Seq and Caddy (automatic HTTPS).
+- The CI publishes the API and migrator images to GHCR, then deploys over SSH and runs migrations as a separate step.
+- Forwarded headers, persisted Data Protection keys, and R2 media storage (3.4).
+
 ### 8.1 Data retention
 - Anonymize parent contact data on old inquiries.
 - Delete individual search and engagement events after 18 months; only aggregates are kept.
@@ -349,7 +356,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 ## Dependencies
 
 ```
-0.0 ─┬─> 0.1 / 0.2 tests ──> 0.4 CI ──> 0.8 staging
+0.0 ─┬─> 0.1 / 0.2 tests ──> 0.4 CI ──> 8.0 staging (+ 3.4 R2) ──> 8.2 production
      ├─> 0.3 local environment
      ├─> 0.5 background jobs ──> M2 outbox and email ──> 2.7 invitations
      └─> 0.6 identity ──> 1.8 admin create
