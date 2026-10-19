@@ -26,8 +26,7 @@ public static class EndpointExtensions
         RouteGroupBuilder? routeGroupBuilder = null)
     {
         IEnumerable<IEndpoint> endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
-
-        IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
+        IEndpointRouteBuilder builder = routeGroupBuilder ?? app.MapGroup("api");
 
         foreach (IEndpoint endpoint in endpoints)
         {
