@@ -12,11 +12,11 @@ internal static class RefreshTokenCookieHelper
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Path = "/auth",
+            Path = "/api/auth",
             Expires = expiresAtUtc
         });
 
     public static void Clear(HttpResponse response) =>
-        response.Cookies.Delete(Name, new CookieOptions { Path = "/auth", Secure = true, SameSite = SameSiteMode.Strict });
+        response.Cookies.Delete(Name, new CookieOptions { Path = "/api/auth", Secure = true, SameSite = SameSiteMode.Strict });
 }
 

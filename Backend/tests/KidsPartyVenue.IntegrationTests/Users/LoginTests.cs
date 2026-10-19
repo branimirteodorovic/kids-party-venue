@@ -33,7 +33,7 @@ public sealed class LoginTests(IntegrationTestWebAppFactory factory) : BaseInteg
         setCookie!.Should().ContainEquivalentOf("httponly")
             .And.ContainEquivalentOf("secure")
             .And.ContainEquivalentOf("samesite=strict")
-            .And.ContainEquivalentOf("path=/auth");
+            .And.ContainEquivalentOf("path=/api/auth");
         response.GetRefreshTokenCookie().Should().NotBeNullOrEmpty();
     }
 
