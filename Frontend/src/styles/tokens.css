@@ -1,0 +1,123 @@
+/*
+ * Slavljenik.rs design tokens.
+ * Each variable becomes Tailwind utilities: --color-primary-600 → bg-primary-600, text-primary-600, …
+ */
+@theme static {
+  /* Breakpoints: phone < 600px, tablet 600–1023px, desktop ≥ 1024px. Tailwind's defaults are removed. */
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 37.5rem;
+  --breakpoint-desktop: 64rem;
+
+  /* Page width (max-w-page) */
+  --container-page: 75rem;
+
+  /* Fonts */
+  --font-sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-page: #fffcf8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #faf6f1;
+  --color-surface-sunken: #f2ede6;
+  --color-ink: #1f1b18; /* dark surfaces: footer, toasts, admin sidebar. Dialog scrim: bg-ink/50 */
+
+  /* Borders */
+  --color-border: #e4ddd4;
+  --color-border-strong: #cfc6bb;
+  --color-border-input: #8f8578; /* 3:1 against white, for form controls */
+
+  /* Text */
+  --color-text: #1f1b18;
+  --color-text-secondary: #4a433d;
+  --color-text-muted: #635b53;
+  --color-text-disabled: #a79d92;
+  --color-disabled-fg: #766d63; /* text on disabled buttons */
+
+  /* Primary: Buttons, links, selection. */
+  --color-primary-50: #f3f0fd;
+  --color-primary-100: #e6e0fb;
+  --color-primary-200: #cdc1f6;
+  --color-primary-300: #a996ee;
+  --color-primary-400: #8467e2;
+  --color-primary-500: #6a4ad6;
+  --color-primary-600: #5b3cc4;
+  --color-primary-700: #4a2fa3;
+  --color-primary-800: #3b2680;
+  --color-primary-900: #2a1c5c;
+
+  /* Accent: Highlights, stars, the "Sponzorisano" label. Never a button. */
+  --color-accent-50: #fff4ec;
+  --color-accent-100: #ffe4d1;
+  --color-accent-200: #ffcdaa;
+  --color-accent-500: #ff8a4c;
+  --color-accent-600: #e86e2e;
+  --color-accent-700: #b54a14;
+  --color-accent-800: #8c3a10;
+
+  /* Feedback */
+  --color-success-fg: #1e7a46;
+  --color-success-bg: #e6f4ec;
+  --color-success-border: #a8d8bc;
+  --color-warning-fg: #8a5a00;
+  --color-warning-bg: #fff3d6;
+  --color-warning-border: #f5d28a;
+  --color-warning-icon: #c98a00;
+  --color-danger-fg: #b42318;
+  --color-danger-bg: #fdecea;
+  --color-danger-border: #f4b8b1;
+  --color-danger-hover: #8f1c13;
+  --color-info-fg: #1f5fad;
+  --color-info-bg: #e8f1fc;
+  --color-info-border: #b3cef0;
+
+  /* Booking statuses without a feedback color of their own */
+  --color-paid-fg: #0b6e5f;
+  --color-paid-bg: #ddf3ee;
+  --color-paid-border: #9fd9cc;
+  --color-completed-fg: #4a433d;
+  --color-completed-bg: #f2ede6;
+  --color-completed-border: #cfc6bb;
+  --color-refunded-fg: #3f4a6b;
+  --color-refunded-bg: #eceef4;
+  --color-refunded-border: #c3c9da;
+
+  /* Type scale: size and line height. "-lg" variants are for desktop. */
+  --text-display: 2rem;
+  --text-display--line-height: 2.5rem;
+  --text-display-lg: 2.75rem;
+  --text-display-lg--line-height: 3.25rem;
+  --text-h1: 1.75rem;
+  --text-h1--line-height: 2.25rem;
+  --text-h1-lg: 2.125rem;
+  --text-h1-lg--line-height: 2.625rem;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 2rem;
+  --text-h2-lg: 1.625rem;
+  --text-h2-lg--line-height: 2.125rem;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.75rem;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-label: 1rem;
+  --text-label--line-height: 1.25rem;
+  --text-button: 1.125rem;
+  --text-button--line-height: 1.5rem;
+  --text-price: 1.375rem;
+  --text-price--line-height: 1.75rem;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.25rem;
+
+  /* Radii */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Shadows */
+  --shadow-raised: 0 1px 2px rgb(31 27 24 / 0.06), 0 4px 12px rgb(31 27 24 / 0.08);
+  --shadow-sticky: 0 -2px 16px rgb(31 27 24 / 0.1);
+  --shadow-window: 0 16px 40px rgb(31 27 24 / 0.18);
+}
