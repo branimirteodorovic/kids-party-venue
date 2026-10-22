@@ -2,6 +2,7 @@ import {
   LucideArchive,
   LucideBadgeCheck,
   LucideBan,
+  LucideBanknote,
   LucideCalendarDays,
   LucideCheck,
   LucideChevronDown,
@@ -10,6 +11,7 @@ import {
   LucideCircleAlert,
   LucideCircleCheck,
   LucideCircleX,
+  LucideEye,
   LucideFlag,
   LucideHeart,
   LucideHourglass,
@@ -59,5 +61,7 @@ export function provideAppIcons() {
     LucideUndo2,
     LucideUsers,
     LucideX,
+    LucideEye,
+    LucideBanknote
   );
 }

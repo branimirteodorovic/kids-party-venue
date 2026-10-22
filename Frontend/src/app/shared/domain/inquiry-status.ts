@@ -24,7 +24,7 @@ export interface InquiryStatusMeta {
 
 export const INQUIRY_STATUS_META: Record<InquiryStatus, InquiryStatusMeta> = {
   New: { label: 'Novi upit', parentLabel: 'Upit je poslat', tone: 'info', icon: 'inbox' },
-  Seen: { label: 'Pročitan', parentLabel: 'Vlasnik je pročitao upit', tone: 'info', icon: 'inbox' },
+  Seen: { label: 'Pročitan', parentLabel: 'Vlasnik je pročitao upit', tone: 'info', icon: 'eye' },
   AwaitingDeposit: {
     label: 'Čeka se kapara',
     parentLabel: 'Čeka se vaša kapara',
@@ -41,11 +41,11 @@ export const INQUIRY_STATUS_META: Record<InquiryStatus, InquiryStatusMeta> = {
     label: 'Plaćeno u celosti',
     parentLabel: 'Plaćeno u celosti',
     tone: 'paid',
-    icon: 'badge-check',
+    icon: 'banknote',
   },
   Completed: { label: 'Održano', parentLabel: 'Održano', tone: 'completed', icon: 'flag' },
   CancelledRefunded: {
-    label: 'Otkazano · vraćeno`',
+    label: 'Otkazano · vraćeno',
     parentLabel: 'Otkazano · kapara vraćena',
     tone: 'refunded',
     icon: 'undo-2',
