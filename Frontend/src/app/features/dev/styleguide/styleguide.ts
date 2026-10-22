@@ -4,6 +4,9 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../shared/ui/button/button';
 import { formatLongDate, formatShortDate, pluralSr } from '../../../shared/util/format';
 import { DinPipe } from '../../../shared/util/din-pipe';
+import { Badge } from '../../../shared/ui/badge/badge';
+import { INQUIRY_STATUS_META, InquiryStatus } from '../../../shared/domain/inquiry-status';
+import { InquiryStatusBadge } from '../../../shared/domain/inquiry-status-badge/inquiry-status-badge';
 
 interface Swatch {
   name: string;
@@ -12,7 +15,7 @@ interface Swatch {
 }
 
 @Component({
-  imports: [Logo, Icon, Button, DinPipe],
+  imports: [Logo, Icon, Button, DinPipe, Badge, InquiryStatusBadge],
   selector: 'app-styleguide',
   styleUrl: './styleguide.css',
   templateUrl: './styleguide.html',
@@ -92,6 +95,8 @@ export class Styleguide {
     'users',
     'x',
   ];
+
+  protected readonly statuses = Object.keys(INQUIRY_STATUS_META) as InquiryStatus[];
 
   // 💬 The template can't call imported functions, so each result is stored in a field.
   protected readonly longDate = formatLongDate('2026-11-14'); // "subota, 14. novembar 2026."

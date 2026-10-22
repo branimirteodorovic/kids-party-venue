@@ -101,6 +101,31 @@
   </section>
 
   <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Statusi</h2>
+    <div class="grid gap-6 tablet:grid-cols-2">
+      <div>
+        <h3 class="mb-3 text-h3">Pružalac</h3>
+        <ul class="space-y-3">
+          @for (status of statuses; track status) {
+            <li><app-inquiry-status-badge [status]="status" audience="provider" /></li>
+          }
+        </ul>
+      </div>
+      <div>
+        <h3 class="mb-3 text-h3">Roditelj</h3>
+        <ul class="space-y-3">
+          @for (status of statuses; track status) {
+            <li><app-inquiry-status-badge [status]="status" audience="parent" /></li>
+          }
+        </ul>
+      </div>
+    </div>
+    <p class="mt-6">
+      <app-badge tone="accent">Sponzorisano</app-badge>
+    </p>
+  </section>
+
+  <section>
     <h2 class="mb-4 text-h2 desktop:text-h2-lg">Formati</h2>
     <dl class="space-y-2">
       <div class="flex gap-4">
