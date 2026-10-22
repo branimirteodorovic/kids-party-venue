@@ -34,6 +34,19 @@ module.exports = defineConfig([
     },
   },
   {
+    files: ['src/app/shared/ui/button/**/*.ts'],
+    rules: {
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {},

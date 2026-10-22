@@ -1,0 +1,128 @@
+<main class="mx-auto max-w-page space-y-12 p-4 tablet:p-6 desktop:p-8">
+  <h1 class="text-h1 desktop:text-h1-lg">Styleguide</h1>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Boje</h2>
+    <div class="grid grid-cols-2 gap-4 tablet:grid-cols-4 desktop:grid-cols-6">
+      @for (swatch of swatches; track swatch.name) {
+        <figure>
+          <div class="h-16 rounded-md border border-border" [class]="swatch.className"></div>
+          <figcaption class="mt-2">
+            <span class="block text-caption font-semibold">{{ swatch.name }}</span>
+            <span class="block font-mono text-caption text-text-muted">{{ swatch.hex }}</span>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Tipografija</h2>
+    <ul class="space-y-4">
+      @for (style of typeStyles; track style.token) {
+        <li
+          class="flex flex-col gap-1 border-b border-border pb-4 desktop:flex-row desktop:items-baseline desktop:gap-6"
+        >
+          <span class="w-56 shrink-0 text-caption text-text-muted"
+            >{{ style.token }} · {{ style.size }}</span
+          >
+          <span [class]="style.className">Rođendaonica za subotu</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Zaobljenja i senke</h2>
+    <div class="grid gap-6 tablet:grid-cols-3">
+      <div class="rounded-lg bg-surface p-6 shadow-raised">shadow-raised</div>
+      <div class="rounded-lg bg-surface p-6 shadow-sticky">shadow-sticky</div>
+      <div class="rounded-lg bg-surface p-6 shadow-window">shadow-window</div>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-4">
+      <div class="size-16 rounded-sm bg-primary-100"></div>
+      <div class="size-16 rounded-md bg-primary-100"></div>
+      <div class="size-16 rounded-lg bg-primary-100"></div>
+      <div class="size-16 rounded-xl bg-primary-100"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Logo i ikone</h2>
+    <app-logo />
+
+    <ul class="mt-6 flex flex-wrap gap-4">
+      @for (iconName of iconNames; track iconName) {
+        <li class="flex w-28 flex-col items-center gap-2 rounded-md border border-border p-3">
+          <app-icon [name]="iconName" [size]="32" />
+          <span class="text-caption text-text-muted">{{ iconName }}</span>
+        </li>
+      }
+    </ul>
+
+    <p class="mt-6 flex items-center gap-2 text-body">
+      Ikona sa oznakom:
+      <app-icon name="x" label="Zatvori" />
+    </p>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Dugmad</h2>
+
+    <div class="space-y-6">
+      @for (size of buttonSizes; track size) {
+        <div>
+          <h3 class="mb-3 text-h3">Veličina: {{ size }}</h3>
+          <div class="flex flex-wrap items-center gap-4">
+            @for (variant of buttonVariants; track variant) {
+              <button appButton [variant]="variant" [size]="size" type="button">
+                {{ variant }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <div>
+        <h3 class="mb-3 text-h3">Stanja</h3>
+        <div class="flex flex-wrap items-center gap-4">
+          <button appButton loading type="button">Učitavanje</button>
+          <button appButton disabled type="button">Onemogućeno</button>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-3 text-h3">Preko cele širine (kutija 320 px)</h3>
+        <div class="w-80 rounded-md border border-dashed border-border p-4">
+          <button appButton fullWidth type="button">Pošalji upit</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Formati</h2>
+    <dl class="space-y-2">
+      <div class="flex gap-4">
+        <dt class="w-40 shrink-0 text-caption text-text-muted">din pipe</dt>
+        <dd>{{ 30000 | din }}</dd>
+      </div>
+      <div class="flex gap-4">
+        <dt class="w-40 shrink-0 text-caption text-text-muted">Dugi datum</dt>
+        <dd>{{ longDate }}</dd>
+      </div>
+      <div class="flex gap-4">
+        <dt class="w-40 shrink-0 text-caption text-text-muted">Kratki datum</dt>
+        <dd>{{ shortDate }}</dd>
+      </div>
+      <div class="flex gap-4">
+        <dt class="w-40 shrink-0 text-caption text-text-muted">Množina (1, 2, 5)</dt>
+        <dd>
+          @for (plural of plurals; track plural) {
+            <span class="block">{{ plural }}</span>
+          }
+        </dd>
+      </div>
+    </dl>
+  </section>
+</main>
