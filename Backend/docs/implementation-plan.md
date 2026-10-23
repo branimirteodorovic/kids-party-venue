@@ -15,6 +15,9 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 | Money and time | `decimal` in RSD; UTC `timestamptz` in the database | Local dates and times in `Europe/Belgrade` for party dates and availability rules. |
 | API contracts | Paging, ProblemDetails, stable DTOs | Times are returned both as UTC instants and as local date and time. |
 | Analytics | Anonymous search and engagement events, aggregated without provider IDs | No names, phone numbers or IP addresses. Other providers' data is never used for a provider's suggestions, and suggestions never include prices. |
+| Market | Serbia, city by city; venues first | Every city and municipality is seeded, and all are hidden. The admin opens a category in a city once enough providers there are published. Venues come first; catering and cakes follow after the MVP (P2.11). |
+| Public visibility | Published, and the provider's category is open in its city | One shared SQL condition used by every public query. Closing a city again hides it and its profiles from parents; existing inquiries and bookings carry on. |
+| Languages | Serbian (Latin, default), English and Russian | The frontend translates the interface. The API returns lookup names (cities, districts, amenities) in the request language (`Accept-Language`) and sends each notification in its recipient's language. Texts written by providers are shown as written; invoices are Serbian only. |
 
 ## Delivery conventions
 
@@ -64,6 +67,12 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 ### 0.8 Staging deployment
 - Moved to 8.0, so no server runs before one is needed.
 
+### 0.9 Languages
+- Supported languages `sr` (default), `en` and `ru`, read from `Accept-Language` by the request localization middleware. Anything else falls back to `sr`.
+- `ILanguageContext` gives handlers and queries the current language.
+- A `LocalizedText` value object for lookup data: Serbian is required, English and Russian fall back to Serbian when missing.
+- `PreferredLanguage` on users, set at registration or claim and changeable later. It decides the language of the user's notifications.
+
 ---
 
 ## Milestone 1 — Providers and offerings
@@ -72,29 +81,32 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Tag support in `ICacheService` (`RemoveByTagAsync`), backed by HybridCache tags.
 
 ### 1.2 Lookup data
-- `District` (Novi Sad districts and nearby places) and `Amenity`, with seed data.
-- `ProviderCategory` enum.
-- `GET /districts` and `GET /amenities`.
+- `City`: every city and municipality in Serbia, seeded from the official register, with a slug, names in three languages, the locative form used in phrases such as "u Novom Sadu", and a center point. All cities start hidden.
+- `District` belongs to a city. The Novi Sad districts and nearby places are seeded; other cities get theirs when they open, and a city may have none.
+- `Amenity` with names in three languages, with seed data.
+- `ProviderCategory` enum, and `CityCategory`: which categories are open in which city. Nothing is open at first; the development seed opens venues in Novi Sad.
+- `GET /catalogs` (the open cities with their open categories and districts, plus amenities) and `GET /cities` (all cities, for registration and the profile editor), with names in the request language.
 
 ### 1.3 Provider entity
-- `Provider` with slug, name, category, description, address, district, location, status, claimed flag and activity timestamps.
+- `Provider` with slug, name, category, description, address, city, district, location, status, claimed flag and activity timestamps. The district is required only in cities that have districts.
 - Repository, EF configuration (geography column + GiST index, unique slug) and migration.
 
 ### 1.4 Slug generation
-- Serbian Latin transliteration and uniqueness.
+- Serbian Latin transliteration (Cyrillic names included) and uniqueness.
+- Words used by the public URL structure (`kvart`) are never generated as a slug.
 
 ### 1.5 BookingPolicy
 - A value object with deposit type and value, deposit due days, free cancellation days and quantity change days.
 
-### 1.6 VenueDetails and ServiceDetails
-- **Venues:** capacities, age range, outside catering and cake rules, included food, own animator or photographer, smoking area.
-- **Services:** service-area districts, delivery, lead time, maximum orders per day.
+### 1.6 VenueDetails
+- Capacities, age range, outside catering and cake rules, included food, own animator or photographer, smoking area.
+- `ServiceDetails` for catering and cakes moved after the MVP; see P2.11.
 
 ### 1.7 Provider amenities
 - The many-to-many relation between providers and amenities.
 
 ### 1.8 Admin: create provider
-- `POST /admin/providers` creates an unclaimed Draft profile.
+- `POST /admin/providers` creates an unclaimed Draft profile in any city. Until P2.11, only the `Venue` category is accepted.
 
 ### 1.9 Update provider
 - Commands and endpoints for basic info, details, booking policy and amenities.
@@ -104,10 +116,13 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Resource-based authorization policies (`ProviderMember`, `ProviderOwner`) for routes under `providers/{providerId}/...`, with cached memberships.
 
 ### 1.11 Public provider page
-- `GET /providers/{slug}`: Dapper, cached with the tag `provider:{id}`; only `Published` providers are returned.
+- `GET /providers/{slug}`: Dapper, cached with the tag `provider:{id}`.
+- Only publicly visible providers are returned: `Published`, with their category open in their city. The condition lives in one shared SQL fragment that every public query uses.
+- The response includes the city and category, so the frontend can redirect to the canonical URL.
 
 ### 1.12 Self-registration
 - A logged-in user creates a Draft provider and becomes its Owner.
+- Any city can be chosen. A venue in a city that isn't open yet can still be reviewed and published; parents see it once its city opens. Until P2.11, only venues can register.
 
 ### 1.13 Review workflow
 - `Draft → PendingReview → Published | ChangesRequested`, with review notes, plus suspend and unsuspend.
@@ -139,9 +154,11 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ### 2.5 Notifications
 - `INotificationChannel`, an email channel (MailKit) and a notification log.
+- Each notification is rendered in its recipient's language.
 
 ### 2.6 Email templates
-- Serbian Latin templates for invitations and review results.
+- Templates in Serbian (Latin), English and Russian for invitations and review results.
+- An invitation's language is chosen when the admin sends it; after the claim, the owner's preferred language applies.
 
 ### 2.7 Provider invitations
 - Hashed invitation tokens valid for 7 days, sent through the outbox, with revoke and resend.
@@ -169,16 +186,17 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Used only on servers, so it's built together with staging (8.0).
 
 ### 3.5 Search with filters
-- Dapper search by category, district or service area, capacity, age, price and amenities, with PostGIS radius and distance ordering, and paging.
+- Dapper search within one city, by category, district, capacity, age, price and amenities, with PostGIS radius and distance ordering (from the parent's point, or the city center), and paging.
+- Only publicly visible providers are searched (1.11). District names come back in the request language.
 
 ### 3.6 Full-text search
-- A generated `tsvector` column with a diacritics-insensitive normalization function (`unaccent` and đ→dj), a GIN index and `websearch_to_tsquery`.
+- A generated `tsvector` column with a diacritics-insensitive normalization function (`unaccent` and đ→dj; Cyrillic letters are transliterated to Latin first), a GIN index and `websearch_to_tsquery`.
 
 ### 3.7 Ranking, sponsored results, caching and search log
 - Ranking by relevance, paid plan, profile completeness, recent activity and rating.
 - Sponsored results flagged `IsSponsored`.
-- Short-lived cached result pages.
-- An asynchronous, anonymous search log: category, requested date and part of day, days ahead, districts, guest counts, child age, filters and result count, with zero-result searches flagged.
+- Short-lived cached result pages, keyed by the request language too, and invalidated when a category opens or closes in a city.
+- An asynchronous, anonymous search log: city, category, requested date and part of day, days ahead, districts, guest counts, child age, filters, interface language and result count, with zero-result searches flagged.
 - Searches are logged only when a parent runs a search, not on every filter change or page.
 - A random session ID that isn't linked to a user or inquiry counts repeated searches once. Whether to keep it, and how to store it, is decided during implementation.
 
@@ -218,14 +236,14 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - A public query for a provider's open slots, in UTC and local time.
 
 ### 4.8 Daily capacity
-- A maximum number of orders per day for services, enforced with optimistic concurrency.
+- Moved after the MVP with the service categories; see P2.11.
 
 ---
 
 ## Milestone 5 — Inquiries and bookings
 
 ### 5.1 Phone verification and anti-abuse
-- SMS one-time codes (HMAC-hashed, with expiry and limited attempts) and single-use verification tokens.
+- SMS one-time codes (HMAC-hashed, with expiry and limited attempts) in the request language, and single-use verification tokens.
 - Rate limits per IP and per phone number, a honeypot field, and an allow-list of country codes.
 
 ### 5.2 Price quote and booking terms
@@ -233,14 +251,14 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - A public quote endpoint.
 
 ### 5.3 Create inquiry
-- Anonymous inquiries with a verified phone, with capacity, age, lead-time and daily-capacity checks, a policy snapshot and a quoted price.
+- Anonymous inquiries to publicly visible providers with a verified phone, with capacity and age checks, a policy snapshot, a quoted price and the parent's language. Lead-time and daily-capacity checks come with the service categories (P2.11).
 
 ### 5.4 Inquiry tracking
-- Private tracking links for parents (hashed tokens).
-- An inquiry list and detail for providers, with seen tracking.
+- Private tracking links for parents (hashed tokens), opening in the parent's language.
+- An inquiry list and detail for providers, with seen tracking and the parent's language.
 
 ### 5.5 Accept and decline
-- Acceptance computes the terms and holds the slot (or reserves daily capacity) in one transaction, protected against concurrent acceptance. Competing inquiries are declined automatically.
+- Acceptance computes the terms and holds the slot in one transaction, protected against concurrent acceptance. Competing inquiries are declined automatically.
 
 ### 5.6 Booking payments
 - Recording the deposit, the balance and refunds. The slot becomes Booked once the deposit is recorded.
@@ -250,7 +268,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Jobs that expire unpaid holds and complete past bookings.
 
 ### 5.8 Inquiry notifications and reminders
-- Notifications on every status change, plus reminders before the deposit deadline, the cancellation deadline and the party.
+- Notifications on every status change, plus reminders before the deposit deadline, the cancellation deadline and the party, each in its recipient's language.
 
 ### 5.9 Inquiry messages
 - A parent ↔ provider message thread on each inquiry.
@@ -274,7 +292,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - An NBS IPS QR payload and image.
 
 ### 6.5 Invoice PDF
-- PDF invoices generated with QuestPDF.
+- PDF invoices generated with QuestPDF, in Serbian.
 
 ### 6.6 Manual payments
 - An admin records a payment, the invoice is marked paid and the subscription is extended.
@@ -294,7 +312,8 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - **7.3** Invitations overview.
 - **7.4** Subscriptions, invoices and payments.
 - **7.5** Audit history.
-- **7.6** Lookup data management (districts, amenities, plans, promo codes).
+- **7.6** Lookup data management (districts per city, amenities, plans, promo codes), with names in three languages.
+- **7.7** City launches: every city with its providers per category and status; opening or closing a category in a city (opening needs the city's locative names); published providers there are notified when their category opens.
 
 ---
 
@@ -318,6 +337,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 
 ### 8.3 Pre-release review
 - A security review, and rate limits on every anonymous endpoint.
+- Email and SMS templates checked in all three languages.
 
 ---
 
@@ -328,21 +348,24 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 | Step | Content |
 |---|---|
 | P2.1 | Search by free slot in a time window |
-| P2.2 | Party request: one parent request creates inquiries to several providers in one transaction |
+| P2.2 | Party request: one parent request creates inquiries to several providers in one transaction (after P2.11) |
 | P2.3 | Quantity change requests with the minimum-quantity floor and price recalculation |
 | P2.4 | Verified reviews through a one-time link after a completed booking, admin moderation, public provider replies, aggregate rating |
 | P2.5 | SMS and Viber Business notification channels |
 | P2.6 | Embeddable provider calendar |
 | P2.7 | Provider statistics |
-| P2.8 | SEO data endpoints (district × category listings, sitemap) |
+| P2.8 | SEO data endpoints: city × category and district listings, and a sitemap with all three languages, for open city categories only |
 | P2.9 | Social sign-in: Google (ID token) and Facebook (access token checked through the Graph API), with account linking, pre-account-takeover protection and Facebook's data deletion callback |
 | P2.10 | Refresh token cleanup: a recurring Hangfire job that deletes refresh tokens that expired or were revoked more than a retention period ago (for example 30 days) |
+| P2.11 | Service categories, catering and cakes: `ServiceDetails` (service-area districts, delivery, lead time, maximum orders per day), daily capacity (moved from 4.8), lead-time and daily-capacity checks on inquiries and acceptance, opened city by city like venues |
+| P2.12 | City wishes: a parent can pick a city that isn't open yet; the anonymous count per city appears on the admin's launch screen (7.7) |
+| P2.13 | Optional English and Russian versions of texts written by providers (description, package names, rules), falling back to Serbian |
 
 ## Phase 3
 
 | Step | Content |
 |---|---|
-| P3.0 | Portion guidelines, and the animator, photographer and decoration categories |
+| P3.0 | Portion guidelines, and the animator, photographer and decoration categories, opened city by city |
 | P3.1 | Deterministic planner: candidates per category, compatibility rules, quantities, budget-constrained top-3 combinations, alternatives |
 | P3.2 | LLM-based request parsing (structured output, validated) and explanations over computed results only |
 | P3.3 | Natural-language schedule parsing into availability rules, always previewed and confirmed |
@@ -361,9 +384,12 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
      ├─> 0.5 background jobs ──> M2 outbox and email ──> 2.7 invitations
      └─> 0.6 identity ──> 1.8 admin create
                       └─> 1.10 membership ──> 1.12 self-registration, 2.8 claim
+0.9 languages ──> 1.2 cities and lookups ──> 1.11 public visibility ──> 3.5 search
+                                         └─> 7.7 city launches
 M1 providers ──> M3 media and search
 3.7 search log, 3.8 engagement events ──> P2.7 statistics, P3.7 provider suggestions
 M1 providers ──> M4 availability ──> M5 inquiries ──> 5.8 notifications
 6.1 subscriptions ─┬─> 6.2 feature access ──> 3.7 ranking with real plan data
                    └─> 6.6 / 6.8 billing jobs
+P2.11 service categories ──> P2.2 party request, P3.1 planner
 ```
