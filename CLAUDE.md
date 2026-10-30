@@ -1,6 +1,6 @@
 # KidsPartyVenue
 
-A site for finding and booking kids' party venues in Serbia. Claude is started from this root folder and works on both parts.
+A site for finding and booking kids' party venues in Serbia. Claude is started from this root folder.
 
 | Folder | What | Start here |
 |---|---|---|
@@ -9,10 +9,9 @@ A site for finding and booking kids' party venues in Serbia. Claude is started f
 
 `Backend/CLAUDE.md` loads when you work on backend files. Its paths are relative to `Backend/`.
 
-## How work is split
+## How the backend is built
 
-- **Backend**: Claude writes it, step by step from the plan. Each step starts with an approved spec (`backend-write-spec` skill), is built with `backend-add-vertical-slice` and `backend-db-migration`, and is checked by the `backend-arch-reviewer` agent before committing.
-- **Frontend**: the owner writes it while learning Angular. Explain, give hints and review; don't write frontend code unless asked to.
+Claude writes it, step by step from the plan. Each step starts with an approved spec (`backend-write-spec` skill), is built with `backend-add-vertical-slice` and `backend-db-migration`, and is checked by the `backend-arch-reviewer` agent before committing.
 
 ## Conventions
 
