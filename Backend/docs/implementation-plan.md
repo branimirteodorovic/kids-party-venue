@@ -26,7 +26,16 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Each change comes with tests: unit tests for domain logic, integration tests (Testcontainers, `postgis/postgis`) for SQL, constraints and handlers.
 - CI runs on every push to `main`. Once staging exists (8.0), a push to `main` also deploys there.
 - Servers are added only when they're needed: development and tests run locally until the release milestone.
-- Schema changes go through EF Core migrations. Each vertical slice follows `.claude/rules/architecture.md`.
+- Schema changes go through EF Core migrations. Each vertical slice follows `.claude/rules/backend-architecture.md` (at the repository root).
+- Each step gets a one-page spec in [docs/specs](specs/README.md) before it's built. This plan stays a roadmap; the detail lives in the specs, written just in time so they match the code.
+
+## Working with an AI coding agent
+
+Most backend code is written by an AI coding agent (Claude Code). The owner sets the direction, approves each spec and reviews every change.
+
+- **Standing context**, written once and kept up to date: the root and backend `CLAUDE.md`, the backend architecture and coding-style rules in `.claude/rules/`, and skills for repeated tasks (`backend-write-spec`, `backend-add-vertical-slice`, `backend-db-migration`).
+- **Per step**: the agent drafts the spec from this plan and the current code, with its decisions and open questions. The owner edits and approves it, and only then is code written. Anything that changes during the build goes back into the spec.
+- **Checks**: tests and CI on every push, the `backend-arch-reviewer` agent before every commit, a hook that blocks hand edits to migrations, and the owner's review of every diff.
 
 ---
 

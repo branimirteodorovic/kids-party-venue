@@ -1,6 +1,11 @@
-# Coding style
+---
+paths:
+  - "Backend/**"
+---
 
-The build doesn't enforce these yet: there is no `Directory.Build.props`, `.editorconfig` or central package management. Follow them anyway. If those files get added (`TreatWarningsAsErrors`, analyzers, `Directory.Packages.props`), update this note.
+# Backend coding style
+
+Applies to the .NET backend in `Backend/`. The build doesn't enforce these yet: there is no `Directory.Build.props`, `.editorconfig` or central package management. Follow them anyway. If those files get added (`TreatWarningsAsErrors`, analyzers, `Directory.Packages.props`), update this note.
 
 ## C#
 

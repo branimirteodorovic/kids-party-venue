@@ -1,11 +1,11 @@
 ---
-name: add-vertical-slice
+name: backend-add-vertical-slice
 description: Add a new use case (command or query vertical slice) to the KidsPartyVenue backend, covering domain changes, command/query, handler, validator, endpoint, repository wiring and tests. Use when asked to implement a new feature, endpoint, or use case (e.g. venues, bookings, search).
 ---
 
 # Add a vertical slice
 
-A use case spans the Domain, Application, Presentation and (when persistence changes) Infrastructure projects. Paths are relative to `Backend/`. Once the first Venue slices exist, use them as the reference and mirror them.
+A use case spans the Domain, Application, Presentation and (when persistence changes) Infrastructure projects. Paths are relative to `Backend/`, and commands run from there (from the repo root, `cd Backend` first). Once the first Venue slices exist, use them as the reference and mirror them.
 
 ## 1. Domain (only if new behavior or state is needed): `src/KidsPartyVenue.Domain/<FeatureArea>/`
 
@@ -138,7 +138,7 @@ internal sealed class CreateVenue : IEndpoint
 - `<Entity>Configuration : IEntityTypeConfiguration<T>`, applied from `KidsPartyVenueDbContext.OnModelCreating`.
 - `internal sealed class <Entity>Repository(KidsPartyVenueDbContext context) : I<Entity>Repository`, **registered in `InfrastructureConfiguration.AddInfrastructure`**. Repositories are not auto-scanned.
 - External services (for example `IGeocoder`) get an implementation here, registered with a typed `HttpClient` and options bound from configuration.
-- Then generate a migration with the `db-migration` skill.
+- Then generate a migration with the `backend-db-migration` skill.
 
 ## 5. Tests (once the test projects exist)
 
@@ -148,7 +148,7 @@ internal sealed class CreateVenue : IEndpoint
 
 ## Verify
 
-`dotnet build KidsPartyVenue.slnx`, then `dotnet test` (if test projects exist), then run the `arch-reviewer` agent.
+`dotnet build KidsPartyVenue.slnx`, then `dotnet test` (if test projects exist), then run the `backend-arch-reviewer` agent.
 
 ## Checklist
 

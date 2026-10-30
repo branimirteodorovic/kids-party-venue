@@ -1,6 +1,11 @@
-# Architecture boundaries and naming
+---
+paths:
+  - "Backend/**"
+---
 
-KidsPartyVenue is a single deployable with clean-architecture layers. There are no architecture tests; the `arch-reviewer` agent checks these rules.
+# Backend architecture boundaries and naming
+
+The KidsPartyVenue backend (`Backend/`) is a single deployable with clean-architecture layers. There are no architecture tests; the `backend-arch-reviewer` agent checks these rules.
 
 ## Layer dependencies
 
@@ -32,6 +37,8 @@ KidsPartyVenue is a single deployable with clean-architecture layers. There are 
 | Endpoint | `internal sealed class <UseCase> : IEndpoint` (Presentation) |
 
 ## Vertical slice folder layout
+
+Paths are relative to `Backend/`.
 
 - **Application**: `src/KidsPartyVenue.Application/{FeatureArea}/{UseCase}/`. For example, `Venues/CreateVenue/CreateVenueCommand.cs`, `CreateVenueCommandHandler.cs` and `CreateVenueCommandValidator.cs`. Query slices hold `*Query.cs`, `*QueryHandler.cs` and `*Response.cs`.
 - **Domain**: `src/KidsPartyVenue.Domain/{FeatureArea}/` (entity, `*Errors`, repository interface).

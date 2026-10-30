@@ -1,6 +1,6 @@
 # KidsPartyVenue backend
 
-ASP.NET Core (.NET 10) API for finding and booking kids' party venues. Single-deployable clean architecture with CQRS-style vertical slices. Claude is started from this `Backend/` folder; all paths below are relative to it.
+ASP.NET Core (.NET 10) API for finding and booking kids' party venues. Single-deployable clean architecture with CQRS-style vertical slices. Claude is started from the repository root (see [../CLAUDE.md](../CLAUDE.md)). Paths below are relative to `Backend/`, and commands run from there.
 
 ## Layout
 
@@ -11,9 +11,9 @@ ASP.NET Core (.NET 10) API for finding and booking kids' party venues. Single-de
 | `src/KidsPartyVenue.Presentation` | Minimal API endpoints (`IEndpoint`), `ApiResults` | Application |
 | `src/KidsPartyVenue.Infrastructure` | EF Core `KidsPartyVenueDbContext`, Dapper, caching, auth, external services; DI composition (`AddInfrastructure`) | Application, Presentation |
 | `src/KidsPartyVenue.API` | Host: `Program.cs`, middleware, Serilog, health checks, dev-only auto-migrations | Infrastructure |
-| `tests/KidsPartyVenue.UnitTests`, `tests/KidsPartyVenue.IntegrationTests` | To be added: xUnit; integration tests use Testcontainers (`postgis/postgis`) | — |
+| `tests/KidsPartyVenue.UnitTests`, `tests/KidsPartyVenue.IntegrationTests` | xUnit; integration tests use Testcontainers (`postgis/postgis`) and need Docker running | — |
 
-Detailed rules: [.claude/rules/architecture.md](.claude/rules/architecture.md), [.claude/rules/coding-style.md](.claude/rules/coding-style.md).
+Detailed rules, at the repository root: [backend-architecture.md](../.claude/rules/backend-architecture.md), [backend-coding-style.md](../.claude/rules/backend-coding-style.md).
 
 ## Stack
 
@@ -47,5 +47,6 @@ docker compose logs -f kidspartyvenue.api
 - The Seq sink must stay the **second** `Serilog:WriteTo` entry (index 1) in `appsettings.json`: compose overrides its URL with `Serilog__WriteTo__1__Args__serverUrl`, so reordering would silently configure the wrong sink.
 
 - Health: `GET /health`. In Development, Scalar UI is at `/scalar` and migrations run on startup.
-- Migrations: use the `db-migration` skill. Never hand-edit files in `Database/Migrations` (a hook blocks this).
-- New use case: use the `add-vertical-slice` skill. Before committing, run the `arch-reviewer` agent.
+- Migrations: use the `backend-db-migration` skill. Never hand-edit files in `Database/Migrations` (a hook blocks this).
+- New plan step: use the `backend-write-spec` skill first and don't write code until the spec in `docs/specs/` is approved.
+- New use case: use the `backend-add-vertical-slice` skill. Before committing, run the `backend-arch-reviewer` agent.

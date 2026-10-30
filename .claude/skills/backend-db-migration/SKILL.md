@@ -1,11 +1,11 @@
 ---
-name: db-migration
+name: backend-db-migration
 description: Create or update EF Core migrations for the KidsPartyVenue PostgreSQL/PostGIS database (KidsPartyVenueDbContext). Use for any schema change, such as a new entity, column, index, geo column, seed data, or fixing or removing a migration.
 ---
 
 # EF Core migrations (PostgreSQL / PostGIS)
 
-There is a single `KidsPartyVenueDbContext` in `src/KidsPartyVenue.Infrastructure`. Migrations live in `src/KidsPartyVenue.Infrastructure/Database/Migrations/`, and the startup project is the API. Run from `Backend/`:
+There is a single `KidsPartyVenueDbContext` in `src/KidsPartyVenue.Infrastructure`. Migrations live in `src/KidsPartyVenue.Infrastructure/Database/Migrations/`, and the startup project is the API. Run from `Backend/` (from the repo root, `cd Backend` first):
 
 ```powershell
 dotnet ef migrations add <Migration_Name> `
