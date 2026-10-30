@@ -22,7 +22,12 @@ public abstract class BaseIntegrationTest : IDisposable
         DbContext = _scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
         // The refresh cookie is Secure and the test server is http, so the cookie container would never send it back.
         // Tests read Set-Cookie and send the Cookie header themselves.
-        HttpClient = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
+        // Endpoints are mapped under /api, so tests use paths relative to it ("auth/login")
+        HttpClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            HandleCookies = false,
+            BaseAddress = new Uri("http://localhost/api/")
+        });
     }
 
     protected async Task<Result<TResult>> SendCommand<TCommand, TResult>(TCommand command)

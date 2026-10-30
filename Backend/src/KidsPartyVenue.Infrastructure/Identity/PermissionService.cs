@@ -31,7 +31,7 @@ internal sealed class PermissionService(
                 LEFT JOIN identity.user_roles ur ON ur.user_id = u.id
                 LEFT JOIN identity.roles r ON r.id = ur.role_id
                 WHERE u.id = @UserId
-                GROUP BY u.id, u.email, u.full_name
+                GROUP BY u.id
             """;
 
         UserRow? user = await dbConnection.QuerySingleOrDefaultAsync<UserRow>(

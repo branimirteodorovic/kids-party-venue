@@ -6,9 +6,9 @@ internal static class RolePermissions
 {
     private static readonly Dictionary<string, string[]> Map = new()
     {
-        [Role.Parent] = [Permissions.UsersReadSelf, Permissions.ProvidersRegister],
-        [Role.ProviderMember] = [Permissions.UsersReadSelf, Permissions.ProvidersRegister],
-        [Role.Admin] = [Permissions.UsersReadSelf, Permissions.ProvidersCreate, Permissions.ProvidersReview,
+        [Role.Parent] = [Permissions.UsersReadSelf, Permissions.UsersUpdateSelf, Permissions.ProvidersRegister],
+        [Role.ProviderMember] = [Permissions.UsersReadSelf, Permissions.UsersUpdateSelf, Permissions.ProvidersRegister],
+        [Role.Admin] = [Permissions.UsersReadSelf, Permissions.UsersUpdateSelf, Permissions.ProvidersCreate, Permissions.ProvidersReview,
                         Permissions.ProvidersManageAny, Permissions.BillingManage, Permissions.AuditRead]
     };
 

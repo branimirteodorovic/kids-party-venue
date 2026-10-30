@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Testcontainers.PostgreSql;
@@ -19,6 +19,10 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         Environment.SetEnvironmentVariable("BackgroundJobs__ServerEnabled", "false");
         // Tests share one client IP, so the default limit would cause spurious 429s
         Environment.SetEnvironmentVariable("RateLimiting__Auth__PermitLimit", "100000");
+        // Lets the development seeder create the admin; Identity needs a digit and a lowercase letter
+        Environment.SetEnvironmentVariable(
+            "Seed__AdminPassword",
+            $"{Convert.ToHexString(RandomNumberGenerator.GetBytes(8))}a1");
         // CI has no user secrets; a random key per run is enough for tests
         Environment.SetEnvironmentVariable(
             "Authentication__SigningKey",

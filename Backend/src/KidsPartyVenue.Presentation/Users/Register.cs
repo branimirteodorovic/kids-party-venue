@@ -1,6 +1,7 @@
-using KidsPartyVenue.Application.Messaging;
+﻿using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Application.Users.Register;
 using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.Localization;
 using KidsPartyVenue.Presentation.Endpoints;
 using KidsPartyVenue.Presentation.RateLimiting;
 using Microsoft.AspNetCore.Builder;
@@ -18,7 +19,7 @@ internal sealed class Register : IEndpoint
             ICommandHandler<RegisterUserCommand, Guid> handler,
             CancellationToken cancellationToken) =>
         {
-            var command = new RegisterUserCommand(request.Email, request.Password, request.FullName);
+            var command = new RegisterUserCommand(request.Email, request.Password, request.FullName, request.PreferredLanguage);
 
             Result<Guid> result = await handler.Handle(command, cancellationToken);
 
@@ -36,6 +37,9 @@ internal sealed class Register : IEndpoint
         public required string Password { get; init; }
 
         public required string FullName { get; init; }
+
+        /// <summary>When omitted, the request language is used.</summary>
+        public Language? PreferredLanguage { get; init; }
     }
 
     internal sealed class Response

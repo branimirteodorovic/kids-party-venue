@@ -9,4 +9,6 @@ public static class UserErrors
     public static readonly Error InvalidRefreshToken = Error.Unauthorized("Users.InvalidRefreshToken", "Refresh token is invalid");
     public static readonly Error NotFound = Error.NotFound("Users.NotFound", "User is not found");
     public static readonly Error IdentityIdMalformed = Error.Validation("Users.IdentityIdMalformed", "IdentityId is malformed");
+    public static readonly Error FullNameRequired = Error.Validation("Users.FullNameRequired", "Full name is required");
+    public static readonly Error FullNameTooLong = Error.Validation("Users.FullNameTooLong", $"Full name can't be longer than {UserProfile.FullNameMaxLength} characters");
 }

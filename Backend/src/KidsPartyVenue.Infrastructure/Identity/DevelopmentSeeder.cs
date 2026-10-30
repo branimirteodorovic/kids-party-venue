@@ -1,6 +1,11 @@
 using KidsPartyVenue.Application.Clock;
+using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.Localization;
+using KidsPartyVenue.Domain.Users;
+using KidsPartyVenue.Infrastructure.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,7 +15,7 @@ namespace KidsPartyVenue.Infrastructure.Identity;
 public static class DevelopmentSeeder
 {
     /// <summary>
-    /// Creates the admin user from <c>Seed:AdminEmail</c> / <c>Seed:AdminPassword</c> if it doesn't exist yet.
+    /// Creates the admin user and its profile from <c>Seed:AdminEmail</c> / <c>Seed:AdminPassword</c> if they don't exist yet.
     /// Call only in Development, after migrations.
     /// </summary>
     public static async Task SeedDevelopmentDataAsync(this IApplicationBuilder app)
@@ -30,18 +35,16 @@ public static class DevelopmentSeeder
         }
 
         UserManager<User> userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        IDateTimeProvider dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
 
         User? admin = await userManager.FindByEmailAsync(adminEmail);
         if (admin is null)
         {
-            IDateTimeProvider dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
-
             admin = new User
             {
                 Id = Guid.CreateVersion7(),
                 Email = adminEmail,
                 UserName = adminEmail,
-                FullName = "Administrator",
                 EmailConfirmed = true,
                 CreatedAtUtc = dateTimeProvider.UtcNow
             };
@@ -57,6 +60,16 @@ public static class DevelopmentSeeder
             }
 
             logger.LogInformation("Created admin {AdminEmail}", adminEmail);
+        }
+
+        KidsPartyVenueDbContext dbContext = scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+        if (!await dbContext.UserProfiles.AnyAsync(p => p.Id == admin.Id))
+        {
+            Result<UserProfile> profileResult = UserProfile.Create(admin.Id, "Administrator", LanguageCodes.Default, dateTimeProvider.UtcNow);
+            dbContext.UserProfiles.Add(profileResult.Value);
+            await dbContext.SaveChangesAsync();
+
+            logger.LogInformation("Created the profile of admin {AdminEmail}", adminEmail);
         }
 
         if (!await userManager.IsInRoleAsync(admin, Role.Admin))

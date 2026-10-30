@@ -23,6 +23,34 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("preferred_language");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_profiles");
+
+                    b.ToTable("user_profiles", (string)null);
+                });
+
             modelBuilder.Entity("KidsPartyVenue.Infrastructure.Identity.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -165,11 +193,6 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("full_name");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
@@ -355,6 +378,16 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasName("pk_user_tokens");
 
                     b.ToTable("user_tokens", "identity");
+                });
+
+            modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
+                {
+                    b.HasOne("KidsPartyVenue.Infrastructure.Identity.User", null)
+                        .WithOne()
+                        .HasForeignKey("KidsPartyVenue.Domain.Users.UserProfile", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_profiles_users_id");
                 });
 
             modelBuilder.Entity("KidsPartyVenue.Infrastructure.Identity.RefreshToken", b =>

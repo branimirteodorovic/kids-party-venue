@@ -23,23 +23,23 @@ internal sealed class IdentityService(
     KidsPartyVenueDbContext dbContext,
     ILogger<IdentityService> logger) : IIdentityService
 {
-    public async Task<Result<Guid>> RegisterAsync(string email, string password, string fullName, CancellationToken cancellationToken)
+    public async Task<Result> RegisterAsync(Guid userId, string email, string password, CancellationToken cancellationToken)
     {
         var user = new User
         {
-            Id = Guid.CreateVersion7(),
+            Id = userId,
             Email = email.Trim(),
             UserName = email.Trim(),
-            FullName = fullName.Trim(),
             CreatedAtUtc = dateTimeProvider.UtcNow
         };
 
         IdentityResult createUserResult = await userManager.CreateAsync(user, password);
         if (!createUserResult.Succeeded)
         {
-            return Result.Failure<Guid>(MapCreateUserErrors(createUserResult.Errors));
+            return Result.Failure(MapCreateUserErrors(createUserResult.Errors));
         }
 
+        // Runs inside the caller's transaction, so a failure here leaves no user behind
         IdentityResult roleResult = await userManager.AddToRoleAsync(user, Role.Parent);
         if (!roleResult.Succeeded)
         {
@@ -49,20 +49,10 @@ internal sealed class IdentityService(
                 user.Id,
                 roleResult.Errors.Select(e => e.Code));
 
-            // Compensate: don't leave a user without a role behind
-            IdentityResult deleteResult = await userManager.DeleteAsync(user);
-            if (!deleteResult.Succeeded)
-            {
-                logger.LogError(
-                    "Deleting {UserId} after failed role assignment failed: {Errors}",
-                    user.Id,
-                    deleteResult.Errors.Select(e => e.Code));
-            }
-
-            return Result.Failure<Guid>(UserErrors.RoleAssignmentFailed);
+            return Result.Failure(UserErrors.RoleAssignmentFailed);
         }
 
-        return Result.Success(user.Id);
+        return Result.Success();
     }
 
     public async Task<Result<AuthTokens>> LoginAsync(string email, string password, CancellationToken cancellationToken)

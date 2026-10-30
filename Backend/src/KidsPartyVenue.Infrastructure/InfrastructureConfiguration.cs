@@ -1,10 +1,12 @@
 ﻿using Dapper;
 using KidsPartyVenue.Application.Abstractions.Authentication;
 using KidsPartyVenue.Application.Abstractions.Data;
+using KidsPartyVenue.Application.Abstractions.Localization;
 using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Domain.Users;
 using KidsPartyVenue.Infrastructure.Authentication;
 using KidsPartyVenue.Infrastructure.Authorization;
 using KidsPartyVenue.Infrastructure.BackgroundJobs;
@@ -13,6 +15,8 @@ using KidsPartyVenue.Infrastructure.Clock;
 using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
 using KidsPartyVenue.Infrastructure.Identity;
+using KidsPartyVenue.Infrastructure.Localization;
+using KidsPartyVenue.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,8 +54,9 @@ public static class InfrastructureConfiguration
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<KidsPartyVenueDbContext>());
         services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<ILanguageContext, LanguageContext>();
 
-        // TODO: Add repositories
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
         SqlMapper.AddTypeHandler(new GenericArrayHandler<string>());
 

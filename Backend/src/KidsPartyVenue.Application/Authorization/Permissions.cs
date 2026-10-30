@@ -3,6 +3,7 @@
 public static class Permissions
 {
     public const string UsersReadSelf = "users:read-self";
+    public const string UsersUpdateSelf = "users:update-self";
     public const string ProvidersCreate = "providers:create";      // admin creates unclaimed provider
     public const string ProvidersRegister = "providers:register";  // logged-in user self-registers
     public const string ProvidersReview = "providers:review";

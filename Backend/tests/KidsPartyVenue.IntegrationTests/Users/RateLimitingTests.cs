@@ -25,7 +25,10 @@ public sealed class RateLimitingTests(IntegrationTestWebAppFactory factory) : Ba
         WebApplicationFactory<Program> limitedFactory = _factory.WithWebHostBuilder(builder =>
             builder.ConfigureTestServices(services =>
                 services.PostConfigure<AuthRateLimitOptions>(options => options.PermitLimit = permitLimit)));
-        using HttpClient client = limitedFactory.CreateClient();
+        using HttpClient client = limitedFactory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("http://localhost/api/")
+        });
 
         // Act
         List<HttpStatusCode> statusCodes = [];

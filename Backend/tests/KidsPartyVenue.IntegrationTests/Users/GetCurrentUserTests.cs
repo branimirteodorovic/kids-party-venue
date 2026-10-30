@@ -36,7 +36,7 @@ public sealed class GetCurrentUserTests(IntegrationTestWebAppFactory factory) : 
         body.Email.Should().Be(user.Request.Email);
         body.FullName.Should().Be(user.Request.FullName.Trim());
         body.Roles.Should().BeEquivalentTo([Role.Parent]);
-        body.Permissions.Should().BeEquivalentTo([Permissions.UsersReadSelf, Permissions.ProvidersRegister]);
+        body.Permissions.Should().BeEquivalentTo([Permissions.UsersReadSelf, Permissions.UsersUpdateSelf, Permissions.ProvidersRegister]);
     }
 
     [Fact]

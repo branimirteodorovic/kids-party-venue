@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+using FluentValidation;
+using KidsPartyVenue.Domain.Users;
 
 namespace KidsPartyVenue.Application.Users.Register;
 
@@ -17,6 +18,9 @@ internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterU
 
         RuleFor(c => c.FullName)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(UserProfile.FullNameMaxLength);
+
+        RuleFor(c => c.PreferredLanguage)
+            .IsInEnum();
     }
 }

@@ -6,7 +6,7 @@ using Bogus;
 
 namespace KidsPartyVenue.IntegrationTests.Users;
 
-internal sealed record RegisterRequest(string Email, string Password, string FullName);
+internal sealed record RegisterRequest(string Email, string Password, string FullName, string? PreferredLanguage = null);
 
 internal sealed record RegisterResponse(Guid UserId);
 
@@ -27,8 +27,30 @@ internal static class UserRequests
 
     public static string NewEmail() => $"user-{Guid.CreateVersion7():N}@example.test";
 
-    public static Task<HttpResponseMessage> RegisterAsync(this HttpClient client, RegisterRequest request) =>
-        client.PostAsJsonAsync("auth/register", request);
+    public static Task<HttpResponseMessage> RegisterAsync(this HttpClient client, RegisterRequest request, string? acceptLanguage = null)
+    {
+        var message = new HttpRequestMessage(HttpMethod.Post, "auth/register") { Content = JsonContent.Create(request) };
+        if (acceptLanguage is not null)
+        {
+            message.Headers.TryAddWithoutValidation("Accept-Language", acceptLanguage);
+        }
+
+        return client.SendAsync(message);
+    }
+
+    public static Task<HttpResponseMessage> ChangePreferredLanguageAsync(this HttpClient client, string? accessToken, string language)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, "users/me/language")
+        {
+            Content = JsonContent.Create(new { language })
+        };
+        if (accessToken is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
+
+        return client.SendAsync(request);
+    }
 
     public static Task<HttpResponseMessage> LoginAsync(this HttpClient client, string email, string password) =>
         client.PostAsJsonAsync("auth/login", new LoginRequest(email, password));
@@ -39,7 +61,7 @@ internal static class UserRequests
     public static Task<HttpResponseMessage> LogoutAsync(this HttpClient client, string refreshToken) =>
         client.PostWithRefreshCookieAsync("auth/logout", refreshToken);
 
-    public static Task<HttpResponseMessage> GetCurrentUserAsync(this HttpClient client, string? accessToken)
+    public static Task<HttpResponseMessage> GetCurrentUserAsync(this HttpClient client, string? accessToken, string? acceptLanguage = null)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "users/me");
         if (accessToken is not null)
@@ -47,14 +69,23 @@ internal static class UserRequests
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
 
+        if (acceptLanguage is not null)
+        {
+            request.Headers.TryAddWithoutValidation("Accept-Language", acceptLanguage);
+        }
+
         return client.SendAsync(request);
     }
 
-    public static async Task<LoggedInUser> RegisterAndLoginAsync(this HttpClient client, Faker faker)
+    public static async Task<LoggedInUser> RegisterAndLoginAsync(
+        this HttpClient client,
+        Faker faker,
+        string? acceptLanguage = null,
+        string? preferredLanguage = null)
     {
-        RegisterRequest request = NewRegisterRequest(faker);
+        RegisterRequest request = NewRegisterRequest(faker) with { PreferredLanguage = preferredLanguage };
 
-        HttpResponseMessage registerResponse = await client.RegisterAsync(request);
+        HttpResponseMessage registerResponse = await client.RegisterAsync(request, acceptLanguage);
         RegisterResponse registered = (await registerResponse.Content.ReadFromJsonAsync<RegisterResponse>())!;
 
         HttpResponseMessage loginResponse = await client.LoginAsync(request.Email, request.Password);

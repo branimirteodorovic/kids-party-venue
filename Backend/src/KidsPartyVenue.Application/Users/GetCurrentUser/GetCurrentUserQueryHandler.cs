@@ -4,6 +4,7 @@ using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Data;
 using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.Localization;
 using KidsPartyVenue.Domain.Users;
 using System.Data.Common;
 
@@ -24,14 +25,16 @@ internal sealed class GetCurrentUserQueryHandler(
                 SELECT 
                     u.id AS {nameof(UserRow.Id)},
                     u.email AS {nameof(UserRow.Email)},
-                    u.full_name AS {nameof(UserRow.FullName)},
+                    p.full_name AS {nameof(UserRow.FullName)},
+                    p.preferred_language AS {nameof(UserRow.PreferredLanguage)},
                     COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), ARRAY[]::text[])
                         AS {nameof(UserRow.Roles)}
                 FROM identity.users u
+                JOIN user_profiles p ON p.id = u.id
                 LEFT JOIN identity.user_roles ur ON ur.user_id = u.id
                 LEFT JOIN identity.roles r ON r.id = ur.role_id
                 WHERE u.id = @UserId
-                GROUP BY u.id, u.email, u.full_name
+                GROUP BY u.id, u.email, p.full_name, p.preferred_language
             """;
 
         UserRow? user = await dbConnection.QuerySingleOrDefaultAsync<UserRow>(
@@ -49,6 +52,7 @@ internal sealed class GetCurrentUserQueryHandler(
             Id = userId,
             Email = user.Email,
             FullName = user.FullName,
+            PreferredLanguage = LanguageCodes.FromCode(user.PreferredLanguage),
             Roles = [.. user.Roles],
             Permissions = [.. permissions]
         });
@@ -59,6 +63,7 @@ internal sealed class GetCurrentUserQueryHandler(
         public Guid Id { get; init; }
         public string Email { get; init; } = string.Empty;
         public string FullName { get; init; } = string.Empty;
+        public string PreferredLanguage { get; init; } = string.Empty;
         public string[] Roles { get; init; } = [];
     }
 }

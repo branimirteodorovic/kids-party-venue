@@ -1,4 +1,4 @@
-using HealthChecks.UI.Client;
+﻿using HealthChecks.UI.Client;
 using KidsPartyVenue.API.Extensions;
 using KidsPartyVenue.API.Middleware;
 using KidsPartyVenue.Application;
@@ -41,6 +41,7 @@ builder.Services.AddHealthChecks()
 
 builder.Services.AddForwardedHeaders(builder.Configuration);
 builder.Services.AddRateLimiting();
+builder.Services.AddRequestLanguage();
 
 var app = builder.Build();
 
@@ -65,6 +66,8 @@ app.MapHealthChecks("health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
+app.UseRequestLocalization();
 
 app.UseLogContextTraceLogging();
 

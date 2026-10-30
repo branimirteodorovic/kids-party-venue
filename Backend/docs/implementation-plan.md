@@ -81,7 +81,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - Supported languages `sr` (default), `en` and `ru`, read from `Accept-Language` by the request localization middleware. Anything else falls back to `sr`.
 - `ILanguageContext` gives handlers and queries the current language.
 - A `LocalizedText` value object for lookup data: Serbian is required, English and Russian fall back to Serbian when missing.
-- `PreferredLanguage` on users, set at registration or claim and changeable later. It decides the language of the user's notifications.
+- A `UserProfile` domain entity next to the Identity user, holding the full name (moved from Identity) and the `PreferredLanguage`, set at registration or claim and changeable later. It decides the language of the user's notifications.
 
 ---
 
