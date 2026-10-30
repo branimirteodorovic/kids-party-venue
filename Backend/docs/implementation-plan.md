@@ -18,6 +18,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 | Market | Serbia, city by city; venues first | Every city and municipality is seeded, and all are hidden. The admin opens a category in a city once enough providers there are published. Venues come first; catering and cakes follow after the MVP (P2.11). |
 | Public visibility | Published, and the provider's category is open in its city | One shared SQL condition used by every public query. Closing a city again hides it and its profiles from parents; existing inquiries and bookings carry on. |
 | Languages | Serbian (Latin, default), English and Russian | The frontend translates the interface. The API returns lookup names (cities, districts, amenities) in the request language (`Accept-Language`) and sends each notification in its recipient's language. Texts written by providers are shown as written; invoices are Serbian only. |
+| AI features | Anthropic API behind Application interfaces | Model output is untrusted input: structured, validated like a request, and mapped to lookup data on the server. The model never gets database access or provider data, every AI feature falls back to the non-AI path, and prompt or model changes are checked against an eval set first. |
 
 ## Delivery conventions
 
@@ -204,6 +205,14 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 - Anonymous events per provider: search impression (with position), profile view, slot click, inquiry started and inquiry sent.
 - Recorded asynchronously, with bot traffic filtered out at request time. Used for provider statistics (P2.7) and provider suggestions (P3.7).
 
+### 3.9 Natural-language search
+- A parent describes the party in their own words, for example "rođendan za 15 dece od 6 godina, Liman, subota popodne, do 20.000 din". `POST /search/parse` turns the text into the filter set of 3.5. It returns filters only, never providers: the frontend shows them as editable chips and then runs the normal search, so ranking and visibility rules stay in one place.
+- **3.9a** Parser: `IVenueQueryParser` in Application, an Anthropic implementation in Infrastructure (a small, fast model, set in configuration). The text is limited to 300 characters and the city comes from the page, not the text. The prompt gets the open city's district and amenity names, the request language and today's date in Belgrade (to resolve "subota" or "next Saturday"), and nothing else: no provider data and no database access.
+- **3.9b** Validation: structured output (a JSON schema) mapped to the 3.5 filters and checked by the same validator. District and amenity names are matched to lookup data on the server; anything unmatched is dropped. The response also lists the parts of the text that weren't understood, so the frontend can show them.
+- **3.9c** Guardrails: a short timeout. If the model fails, times out or returns invalid output, the endpoint returns an error and the frontend falls back to full-text search (3.6) with the same text. Rate limits per IP, and results cached for a day by normalized text, city, language and date.
+- **3.9d** Observability and privacy: model, tokens, latency, estimated cost and outcome are logged to Seq. The raw text is never logged or stored, because parents may type names or phone numbers. The search log (3.7) records the parsed filters with the source `natural_language`.
+- **3.9e** Evals: a hand-written set of 50 or more cases in Serbian (Latin and Cyrillic), English and Russian, each with the expected filters, including cases where the right answer is to leave a filter empty. A scorer reports accuracy per filter and per language. Evals run against the real model on demand and before any prompt or model change, not on every push; the results are committed so changes can be compared. Handler tests use a fake parser and run in CI as usual.
+
 ---
 
 ## Milestone 4 — Availability
@@ -360,6 +369,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 | P2.11 | Service categories, catering and cakes: `ServiceDetails` (service-area districts, delivery, lead time, maximum orders per day), daily capacity (moved from 4.8), lead-time and daily-capacity checks on inquiries and acceptance, opened city by city like venues |
 | P2.12 | City wishes: a parent can pick a city that isn't open yet; the anonymous count per city appears on the admin's launch screen (7.7) |
 | P2.13 | Optional English and Russian versions of texts written by providers (description, package names, rules), falling back to Serbian |
+| P2.14 | MCP server, so AI assistants can search venues for parents: a Streamable HTTP endpoint `/mcp` in the API (official C# MCP SDK) with read-only tools over public data only: `list_cities` (1.2 catalogs), `search_venues` (the 3.5 filters), `get_venue` (1.11) and `get_free_slots` (4.7), each taking a language. Tools are thin adapters in Presentation that call the existing queries, so the visibility rule and caching apply unchanged. No tool sends an inquiry: results link to the venue page, where the parent sends it with a verified phone. Anonymous, with rate limits per IP; searches are logged with the source `mcp`. Tool names, descriptions and parameter docs are written for a model to read. Integration tests call the tools through an MCP client against the test host, and the README shows how to connect Claude Desktop or Claude Code. Can be pulled forward any time after 4.7. |
 
 ## Phase 3
 
@@ -367,7 +377,7 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 |---|---|
 | P3.0 | Portion guidelines, and the animator, photographer and decoration categories, opened city by city |
 | P3.1 | Deterministic planner: candidates per category, compatibility rules, quantities, budget-constrained top-3 combinations, alternatives |
-| P3.2 | LLM-based request parsing (structured output, validated) and explanations over computed results only |
+| P3.2 | LLM-based party request parsing, extending the 3.9 parser and its eval set, and explanations over computed results only |
 | P3.3 | Natural-language schedule parsing into availability rules, always previewed and confirmed |
 | P3.4 | Party invitations and RSVPs, with order updates based on confirmed guests |
 | P3.5 | Card payments: tokenization, recurring charges, idempotent webhooks, charge retries |
@@ -387,6 +397,8 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 0.9 languages ──> 1.2 cities and lookups ──> 1.11 public visibility ──> 3.5 search
                                          └─> 7.7 city launches
 M1 providers ──> M3 media and search
+3.5 search, 3.6 full-text ──> 3.9 natural-language search ──> P3.2 request parsing, P3.3 schedule parsing
+1.2 catalogs, 1.11 provider page, 3.5 search, 4.7 free slots ──> P2.14 MCP server
 3.7 search log, 3.8 engagement events ──> P2.7 statistics, P3.7 provider suggestions
 M1 providers ──> M4 availability ──> M5 inquiries ──> 5.8 notifications
 6.1 subscriptions ─┬─> 6.2 feature access ──> 3.7 ranking with real plan data
