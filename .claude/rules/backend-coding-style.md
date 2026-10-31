@@ -29,6 +29,7 @@ Applies to the .NET backend in `Backend/`. The build doesn't enforce these yet: 
 
 - Use `ICacheService` (backed by `HybridCache`, in-memory only) in Application code. Prefer `GetOrCreateAsync` over separate get and set calls. Don't inject `HybridCache`, `IMemoryCache` or `IDistributedCache` directly into handlers.
 - Cache keys are `"<area>:<id-or-normalized-input>"`, for example `"geocode:<normalized address>"`. Always set an explicit expiration for external lookups.
+- Cache tags group entries that one write invalidates. They follow the key format, lowercase: `"<area>:<id>"`, for example `"provider:<id>"`. Pass them to `GetOrCreateAsync`/`SetAsync`, and call `RemoveByTagAsync` in the command handler after `SaveChangesAsync` succeeds, never before. The tag `*` is reserved and rejected.
 
 ## Tests (once the test projects exist)
 

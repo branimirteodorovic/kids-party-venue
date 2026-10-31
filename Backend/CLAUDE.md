@@ -18,7 +18,7 @@ Detailed rules, at the repository root: [backend-architecture.md](../.claude/rul
 ## Stack
 
 - **Database**: PostgreSQL 18 + PostGIS 3.6 (`postgis/postgis:18-3.6`) via `Npgsql.EntityFrameworkCore.PostgreSQL`. One singleton `NpgsqlDataSource` is shared by Dapper (`IDbConnectionFactory`), EF Core and the health check. EF Core for writes, Dapper for reads. snake_case names (`UseSnakeCaseNamingConvention`).
-- **Caching**: `HybridCache` (in-memory only, no Redis) behind `ICacheService` (`GetOrCreateAsync` / `SetAsync` / `RemoveAsync`). The default expiration comes from `Caching:DefaultExpirationInMinutes`.
+- **Caching**: `HybridCache` (in-memory only, no Redis) behind `ICacheService` (`GetOrCreateAsync` / `SetAsync` / `RemoveAsync`, plus tags and `RemoveByTagAsync` for invalidating groups of entries). The default expiration comes from `Caching:DefaultExpirationInMinutes`.
 - **Logging**: Serilog, configured from the `Serilog` section in appsettings, writing to the console.
 - **IDs**: `Guid.CreateVersion7()` stored as `uuid`.
 - **Ongoing work**: see [docs/implementation-plan.md](docs/implementation-plan.md). All work happens directly on `main`; don't create branches.

@@ -68,7 +68,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - **0.6a** ASP.NET Core Identity with `Guid` keys in an `identity` schema, seeding the roles `Parent`, `ProviderMember` and `Admin`.
 - **0.6b** Register and login; short-lived HS256 JWT access tokens.
 - **0.6c** Refresh tokens: stored hashed, rotated on every use, with reuse detection that revokes the whole token family. They're delivered in an HttpOnly cookie.
-- **0.6d** `IPermissionService` (role → permissions, cached), `IUserContext` and `GET /users/me`.
+- **0.6d** `IPermissionService` (role → permissions, read per request; cached from 1.10), `IUserContext` and `GET /users/me`.
 - **0.6e** Rate limiting on the auth endpoints.
 
 ### 0.7 Social sign-in
@@ -124,6 +124,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 ### 1.10 Provider membership
 - `ProviderMember (Owner | Staff)` inside the `Provider` aggregate, with last-owner protection.
 - Resource-based authorization policies (`ProviderMember`, `ProviderOwner`) for routes under `providers/{providerId}/...`, with cached memberships.
+- Role permissions are cached too, with memberships under the tag `user:{id}`.
 
 ### 1.11 Public provider page
 - `GET /providers/{slug}`: Dapper, cached with the tag `provider:{id}`.
