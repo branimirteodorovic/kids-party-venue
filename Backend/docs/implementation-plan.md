@@ -91,7 +91,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - Tag support in `ICacheService` (`RemoveByTagAsync`), backed by HybridCache tags.
 
 ### 1.2 Lookup data
-- `City`: every city and municipality in Serbia, seeded from the official register, with a slug, names in three languages, the locative form used in phrases such as "u Novom Sadu", and a center point. All cities start hidden.
+- `City`: every city and municipality in Serbia, seeded from the official register, with a slug, names in three languages (Russian transliterated from the official Cyrillic name and reviewed before a city opens), the locative form used in phrases such as "u Novom Sadu", and a center point. All cities start hidden. Locative forms are seeded for Novi Sad only; the admin fills in the others when opening a city (7.7).
 - `District` belongs to a city. The Novi Sad districts and nearby places are seeded; other cities get theirs when they open, and a city may have none.
 - `Amenity` with names in three languages, with seed data.
 - `ProviderCategory` enum, and `CityCategory`: which categories are open in which city. Nothing is open at first; the development seed opens venues in Novi Sad.

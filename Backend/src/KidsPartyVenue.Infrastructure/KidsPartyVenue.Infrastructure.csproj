@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Database\Seed\*.csv" LogicalName="Seed.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KidsPartyVenue.Application\KidsPartyVenue.Application.csproj" />
     <ProjectReference Include="..\KidsPartyVenue.Presentation\KidsPartyVenue.Presentation.csproj" />
   </ItemGroup>

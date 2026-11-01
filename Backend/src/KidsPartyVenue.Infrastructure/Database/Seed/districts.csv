@@ -1,0 +1,31 @@
+# Districts and nearby places per city. Only Novi Sad is seeded; other cities get theirs when they open (7.6).
+# Russian names are transliterated from Serbian Cyrillic. IDs are fixed: never change them once released.
+id,city_slug,slug,name_sr,name_en,name_ru
+01a19263-5b2c-709e-8706-77eb260fee2d,novi-sad,centar,Centar,City Centre,Центр
+01a19263-5b2c-709e-8706-77ec1bdd37cf,novi-sad,liman,Liman,,Лиман
+01a19263-5b2c-709e-8706-77ed1140406d,novi-sad,grbavica,Grbavica,,Грбавица
+01a19263-5b2c-709e-8706-77eef1a0180e,novi-sad,adice,Adice,,Адице
+01a19263-5b2c-709e-8706-77ef9aaba0b1,novi-sad,telep,Telep,,Телеп
+01a19263-5b2c-709e-8706-77f0eae90268,novi-sad,detelinara,Detelinara,,Детелинара
+01a19263-5b2d-71c2-9405-39c61220dc37,novi-sad,novo-naselje,Novo naselje,,Ново-Населье
+01a19263-5b2d-71c2-9405-39c75f3ed123,novi-sad,satelit,Satelit,,Сателит
+01a19263-5b2d-71c2-9405-39c8c6aac9fa,novi-sad,podbara,Podbara,,Подбара
+01a19263-5b2d-71c2-9405-39c96e0e8d4a,novi-sad,salajka,Salajka,,Салайка
+01a19263-5b2d-71c2-9405-39ca5d0bad5f,novi-sad,rotkvarija,Rotkvarija,,Ротквария
+01a19263-5b2d-71c2-9405-39cb429281a5,novi-sad,klisa,Klisa,,Клиса
+01a19263-5b2d-71c2-9405-39cce766e02a,novi-sad,sajlovo,Sajlovo,,Сайлово
+01a19263-5b2d-71c2-9405-39cd004d2f5e,novi-sad,avijaticarsko-naselje,Avijatičarsko naselje,,Авиятичарско-Населье
+01a19263-5b2e-773b-8d54-15ce1515b936,novi-sad,petrovaradin,Petrovaradin,,Петроварадин
+01a19263-5b2e-773b-8d54-15cfdf9d2598,novi-sad,sremska-kamenica,Sremska Kamenica,,Сремска-Каменица
+01a19263-5b2e-773b-8d54-15d0ca9d5bf4,novi-sad,veternik,Veternik,,Ветерник
+01a19263-5b2e-773b-8d54-15d19f7a2e06,novi-sad,futog,Futog,,Футог
+01a19263-5b2e-773b-8d54-15d2e480ce72,novi-sad,kac,Kać,,Кач
+01a19263-5b2e-773b-8d54-15d377155d9b,novi-sad,budisava,Budisava,,Будисава
+01a19263-5b2e-773b-8d54-15d4a1098a85,novi-sad,kovilj,Kovilj,,Ковиль
+01a19263-5b2e-773b-8d54-15d5d06de373,novi-sad,ledinci,Ledinci,,Лединци
+01a19263-5b2e-773b-8d54-15d6627ae33f,novi-sad,bukovac,Bukovac,,Буковац
+01a19263-5b2e-773b-8d54-15d726a24676,novi-sad,rumenka,Rumenka,,Руменка
+01a19263-5b2e-773b-8d54-15d84cc3dc5f,novi-sad,kisac,Kisač,,Кисач
+01a19263-5b2e-773b-8d54-15d9ef412867,novi-sad,cenej,Čenej,,Ченей
+01a19263-5b2e-773b-8d54-15da0d3eaab9,novi-sad,stepanovicevo,Stepanovićevo,,Степановичево
+01a19263-5b2e-773b-8d54-15db63de12df,novi-sad,begec,Begeč,,Бегеч

@@ -1,0 +1,180 @@
+# Every local self-government unit (grad or opština) in the Law on Territorial Organization of the Republic of Serbia,
+# Kosovo and Metohija included. Centers are the coordinates of each seat in Wikidata (CC0).
+# English names only where they differ from Serbian. Russian names are transliterated from the official Serbian Cyrillic
+# name; review them before a city opens. Locative names are filled in when a city opens (7.7).
+# IDs are fixed: never change them once released.
+id,slug,name_sr,name_en,name_ru,locative_name_sr,locative_name_en,locative_name_ru,latitude,longitude
+01a19263-5b0f-7065-80f4-2731fca7e89d,ada,Ada,,Ада,,,,45.80139,20.12222
+01a19263-5b0f-7065-80f4-2732c910e6a9,aleksandrovac,Aleksandrovac,,Александровац,,,,43.45528,21.05139
+01a19263-5b0f-7065-80f4-273364bdec6e,aleksinac,Aleksinac,,Алексинац,,,,43.53833,21.70472
+01a19263-5b0f-7065-80f4-27344658445d,alibunar,Alibunar,,Алибунар,,,,45.08083,20.96583
+01a19263-5b0f-7065-80f4-273579a88fa6,apatin,Apatin,,Апатин,,,,45.66667,18.98333
+01a19263-5b10-76bf-9bb2-c2a730b49cfc,arandjelovac,Aranđelovac,,Аранджеловац,,,,44.30417,20.55611
+01a19263-5b10-76bf-9bb2-c2a851941c07,arilje,Arilje,,Арилье,,,,43.75194,20.09056
+01a19263-5b10-76bf-9bb2-c2a983af98a8,babusnica,Babušnica,,Бабушница,,,,43.05583,22.40139
+01a19263-5b10-76bf-9bb2-c2aa63402971,bac,Bač,,Бач,,,,45.38861,19.23528
+01a19263-5b10-76bf-9bb2-c2ab75356081,backa-palanka,Bačka Palanka,,Бачка-Паланка,,,,45.25056,19.38861
+01a19263-5b11-74bb-8979-85a359642053,backa-topola,Bačka Topola,,Бачка-Топола,,,,45.80889,19.635
+01a19263-5b11-74bb-8979-85a43ecd33ff,backi-petrovac,Bački Petrovac,,Бачки-Петровац,,,,45.35639,19.58833
+01a19263-5b11-74bb-8979-85a5ccf7601f,bajina-basta,Bajina Bašta,,Баина-Башта,,,,43.97306,19.55972
+01a19263-5b11-74bb-8979-85a68e458d0b,batocina,Batočina,,Баточина,,,,44.15,21.08333
+01a19263-5b11-74bb-8979-85a7b1e8619b,becej,Bečej,,Бечей,,,,45.61667,20.03333
+01a19263-5b11-74bb-8979-85a8c2e3bf7f,bela-crkva,Bela Crkva,,Бела-Црква,,,,44.8975,21.41722
+01a19263-5b11-74bb-8979-85a929278940,bela-palanka,Bela Palanka,,Бела-Паланка,,,,43.21778,22.30667
+01a19263-5b11-74bb-8979-85aa6542aa1a,beocin,Beočin,,Беочин,,,,45.19222,19.72028
+01a19263-5b11-74bb-8979-85ab84c1838d,beograd,Beograd,Belgrade,Белград,,,,44.81778,20.45694
+01a19263-5b11-74bb-8979-85acc5127449,blace,Blace,,Блаце,,,,43.29056,21.28472
+01a19263-5b12-70c7-bb33-50ea06268b9a,bogatic,Bogatić,,Богатич,,,,44.83333,19.48333
+01a19263-5b12-70c7-bb33-50ebb70f423d,bojnik,Bojnik,,Бойник,,,,43.01667,21.73333
+01a19263-5b12-70c7-bb33-50ec23455771,boljevac,Boljevac,,Болевац,,,,43.8303,21.9531
+01a19263-5b12-70c7-bb33-50ed9ff8ff96,bor,Bor,,Бор,,,,44.13028,22.10361
+01a19263-5b12-70c7-bb33-50eea66a6e68,bosilegrad,Bosilegrad,,Босилеград,,,,42.5,22.46667
+01a19263-5b12-70c7-bb33-50ef1f38d207,brus,Brus,,Брус,,,,43.38361,21.03361
+01a19263-5b12-70c7-bb33-50f0eae4bba4,bujanovac,Bujanovac,,Буяновац,,,,42.46667,21.76667
+01a19263-5b12-70c7-bb33-50f1147b8ffa,cacak,Čačak,,Чачак,,,,43.89139,20.34972
+01a19263-5b12-70c7-bb33-50f277768086,cajetina,Čajetina,,Чаетина,,,,43.75,19.71667
+01a19263-5b12-70c7-bb33-50f324a5052b,cicevac,Ćićevac,,Чичевац,,,,43.71667,21.45
+01a19263-5b12-70c7-bb33-50f4f5c1ff82,coka,Čoka,,Чока,,,,45.93889,20.13944
+01a19263-5b13-72f8-aa37-f5269acfa831,crna-trava,Crna Trava,,Црна-Трава,,,,42.81015,22.29901
+01a19263-5b13-72f8-aa37-f527bbb23f9e,cuprija,Ćuprija,,Чуприя,,,,43.92306,21.36861
+01a19263-5b13-72f8-aa37-f528e9e453f3,decani,Dečani,,Дечани,,,,42.53333,20.28333
+01a19263-5b13-72f8-aa37-f529da76e8d0,despotovac,Despotovac,,Деспотовац,,,,44.08333,21.43333
+01a19263-5b13-72f8-aa37-f52ab88830b8,dimitrovgrad,Dimitrovgrad,,Димитровград,,,,43.01667,22.78333
+01a19263-5b13-72f8-aa37-f52b2e3f8e20,djakovica,Đakovica,,Джаковица,,,,42.3825,20.43556
+01a19263-5b13-72f8-aa37-f52c587c81cf,doljevac,Doljevac,,Долевац,,,,43.19892,21.8331
+01a19263-5b13-72f8-aa37-f52d823b75d8,gadzin-han,Gadžin Han,,Гаджин-Хан,,,,43.22028,22.02583
+01a19263-5b13-72f8-aa37-f52e09370587,glogovac,Glogovac,,Глоговац,,,,42.62833,20.89389
+01a19263-5b14-77c0-b018-7ce06537c0cb,gnjilane,Gnjilane,,Гнилане,,,,42.46667,21.46667
+01a19263-5b14-77c0-b018-7ce1af487788,golubac,Golubac,,Голубац,,,,44.65,21.63333
+01a19263-5b15-77e0-8122-fd6a665c1956,gora,Gora,,Гора,,,,42.06142,20.65315
+01a19263-5b15-77e0-8122-fd6b35cf1dd3,gornji-milanovac,Gornji Milanovac,,Горни-Милановац,,,,44.02115,20.45595
+01a19263-5b15-77e0-8122-fd6c0ea44a17,indjija,Inđija,,Инджия,,,,45.04917,20.07917
+01a19263-5b15-77e0-8122-fd6de1770336,irig,Irig,,Ириг,,,,45.10111,19.85833
+01a19263-5b16-755e-8004-124bec326d78,istok,Istok,,Исток,,,,42.78333,20.48333
+01a19263-5b16-755e-8004-124c3e7deb68,ivanjica,Ivanjica,,Иваница,,,,43.58111,20.22972
+01a19263-5b16-755e-8004-124da076c883,jagodina,Jagodina,,Ягодина,,,,43.975,21.25639
+01a19263-5b16-755e-8004-124ea0000654,kacanik,Kačanik,,Качаник,,,,42.23194,21.25944
+01a19263-5b16-755e-8004-124fb0f3071b,kanjiza,Kanjiža,,Канижа,,,,46.06667,20.05
+01a19263-5b16-755e-8004-12501ae1db47,kikinda,Kikinda,,Кикинда,,,,45.82444,20.45917
+01a19263-5b16-755e-8004-1251e10c3bba,kladovo,Kladovo,,Кладово,,,,44.60389,22.60722
+01a19263-5b17-72f2-9124-2c01c319f322,klina,Klina,,Клина,,,,42.62167,20.57778
+01a19263-5b17-72f2-9124-2c0267177cfc,knic,Knić,,Книч,,,,43.91667,20.71667
+01a19263-5b17-72f2-9124-2c0306f2619a,knjazevac,Knjaževac,,Княжевац,,,,43.567,22.255
+01a19263-5b17-72f2-9124-2c04ff53dff8,koceljeva,Koceljeva,,Коцелева,,,,44.47083,19.80694
+01a19263-5b17-72f2-9124-2c051f232cc1,kosjeric,Kosjerić,,Косерич,,,,44.0,19.91667
+01a19263-5b17-72f2-9124-2c068beadae2,kosovo-polje,Kosovo Polje,,Косово-Полье,,,,42.63833,21.0975
+01a19263-5b17-72f2-9124-2c07676f22ee,kosovska-kamenica,Kosovska Kamenica,,Косовска-Каменица,,,,42.56667,21.56667
+01a19263-5b17-72f2-9124-2c08ffa451ee,kosovska-mitrovica,Kosovska Mitrovica,,Косовска-Митровица,,,,42.88333,20.86667
+01a19263-5b17-72f2-9124-2c09898cc955,kovacica,Kovačica,,Ковачица,,,,45.11167,20.62139
+01a19263-5b17-72f2-9124-2c0a8a341af4,kovin,Kovin,,Ковин,,,,44.7475,20.97611
+01a19263-5b17-72f2-9124-2c0bb27201d9,kragujevac,Kragujevac,,Крагуевац,,,,44.01011,20.91722
+01a19263-5b18-76d2-9350-2000538dff3f,kraljevo,Kraljevo,,Кралево,,,,43.72342,20.68698
+01a19263-5b18-76d2-9350-200149c78f51,krupanj,Krupanj,,Крупань,,,,44.36556,19.36194
+01a19263-5b18-76d2-9350-200280ae1bb9,krusevac,Kruševac,,Крушевац,,,,43.58333,21.32667
+01a19263-5b18-76d2-9350-2003d0341a64,kucevo,Kučevo,,Кучево,,,,44.48333,21.66667
+01a19263-5b18-76d2-9350-20049d149ca4,kula,Kula,,Кула,,,,45.6,19.53333
+01a19263-5b18-76d2-9350-20058eeb391c,kursumlija,Kuršumlija,,Куршумлия,,,,43.14083,21.26778
+01a19263-5b18-76d2-9350-2006dc136b19,lajkovac,Lajkovac,,Лайковац,,,,44.36667,20.16667
+01a19263-5b18-76d2-9350-2007ef396952,lapovo,Lapovo,,Лапово,,,,44.18424,21.09727
+01a19263-5b18-76d2-9350-20088fe17753,lebane,Lebane,,Лебане,,,,42.91667,21.73333
+01a19263-5b18-76d2-9350-20091a0223a9,leposavic,Leposavić,,Лепосавич,,,,43.1,20.8
+01a19263-5b18-76d2-9350-200a2061e383,leskovac,Leskovac,,Лесковац,,,,42.99806,21.94611
+01a19263-5b18-76d2-9350-200bee6cfdc1,lipljan,Lipljan,,Липлян,,,,42.52167,21.12583
+01a19263-5b18-76d2-9350-200c953843ec,ljig,Ljig,,Лиг,,,,44.22133,20.2375
+01a19263-5b19-73c4-841c-909f09f58fb1,ljubovija,Ljubovija,,Любовия,,,,44.18922,19.37581
+01a19263-5b19-73c4-841c-90a045cf0288,loznica,Loznica,,Лозница,,,,44.53333,19.22583
+01a19263-5b19-73c4-841c-90a18502da76,lucani,Lučani,,Лучани,,,,43.86667,20.13333
+01a19263-5b19-73c4-841c-90a2dca18129,majdanpek,Majdanpek,,Майданпек,,,,44.41667,21.93333
+01a19263-5b19-73c4-841c-90a36fea79f3,mali-idjos,Mali Iđoš,,Мали-Иджош,,,,45.70694,19.66444
+01a19263-5b19-73c4-841c-90a4da00c84b,mali-zvornik,Mali Zvornik,,Мали-Зворник,,,,44.3727,19.10505
+01a19263-5b19-73c4-841c-90a560e3c1e5,malo-crnice,Malo Crniće,,Мало-Црниче,,,,44.56667,21.28333
+01a19263-5b19-73c4-841c-90a68d22dd46,medvedja,Medveđa,,Медведжа,,,,42.83333,21.58333
+01a19263-5b19-73c4-841c-90a7939376c6,merosina,Merošina,,Мерошина,,,,43.28333,21.71667
+01a19263-5b19-73c4-841c-90a8e66d431b,mionica,Mionica,,Мионица,,,,44.25,20.08333
+01a19263-5b19-73c4-841c-90a9d24acaeb,negotin,Negotin,,Неготин,,,,44.21667,22.51667
+01a19263-5b19-73c4-841c-90aa36ed7d91,nis,Niš,,Ниш,,,,43.31917,21.89611
+01a19263-5b1a-7614-a6da-830139f78eaf,nova-crnja,Nova Crnja,,Нова-Црня,,,,45.66667,20.6
+01a19263-5b1a-7614-a6da-8302e01563b7,nova-varos,Nova Varoš,,Нова-Варош,,,,43.46667,19.82028
+01a19263-5b1a-7614-a6da-83033e432ceb,novi-becej,Novi Bečej,,Нови-Бечей,,,,45.6,20.11667
+01a19263-5b1a-7614-a6da-830451fb5ecf,novi-knezevac,Novi Kneževac,,Нови-Кнежевац,,,,46.05,20.1
+01a19263-5b1a-7614-a6da-8305628d19bc,novi-pazar,Novi Pazar,,Нови-Пазар,,,,43.15,20.51667
+01a19263-5b1a-7614-a6da-83063950107f,novi-sad,Novi Sad,,Нови-Сад,Novom Sadu,Novi Sad,Нови-Саде,45.26444,19.83167
+01a19263-5b1c-717c-b578-b1cf2a025849,novo-brdo,Novo Brdo,,Ново-Брдо,,,,42.6014,21.4261
+01a19263-5b1c-717c-b578-b1d0f7a89bf2,obilic,Obilić,,Обилич,,,,42.69,21.07778
+01a19263-5b1c-717c-b578-b1d137614879,odzaci,Odžaci,,Оджаци,,,,45.51667,19.26667
+01a19263-5b1c-717c-b578-b1d28e7a9ec3,opovo,Opovo,,Опово,,,,45.05139,20.42472
+01a19263-5b1c-717c-b578-b1d380da0627,orahovac,Orahovac,,Ораховац,,,,42.39944,20.65472
+01a19263-5b1c-717c-b578-b1d4e6c18545,osecina,Osečina,,Осечина,,,,44.36667,19.6
+01a19263-5b1c-717c-b578-b1d557b227e8,pancevo,Pančevo,,Панчево,,,,44.87389,20.65194
+01a19263-5b1c-717c-b578-b1d65f56adc2,paracin,Paraćin,,Парачин,,,,43.86667,21.41667
+01a19263-5b1c-717c-b578-b1d7d8988cc6,pec,Peć,,Печ,,,,42.65913,20.28828
+01a19263-5b1d-77e8-8e25-87f9c06a0d50,pecinci,Pećinci,,Печинци,,,,44.90889,19.96639
+01a19263-5b1d-77e8-8e25-87faba253469,petrovac-na-mlavi,Petrovac na Mlavi,,Петровац-на-Млави,,,,44.37833,21.41944
+01a19263-5b1d-77e8-8e25-87fbd6b897ec,pirot,Pirot,,Пирот,,,,43.15194,22.585
+01a19263-5b1d-77e8-8e25-87fca828d402,plandiste,Plandište,,Пландиште,,,,45.22694,21.12167
+01a19263-5b1d-77e8-8e25-87fdc7a37e84,podujevo,Podujevo,,Подуево,,,,42.91167,21.19167
+01a19263-5b1d-77e8-8e25-87fe1a96454e,pozarevac,Požarevac,,Пожаревац,,,,44.62,21.18972
+01a19263-5b1d-77e8-8e25-87ff97466d04,pozega,Požega,,Пожега,,,,43.85,20.05
+01a19263-5b1d-77e8-8e25-8800073e2650,presevo,Preševo,,Прешево,,,,42.30667,21.65
+01a19263-5b1d-77e8-8e25-880144965efe,priboj,Priboj,,Прибой,,,,43.58163,19.52734
+01a19263-5b1d-77e8-8e25-8802b6b9e741,prijepolje,Prijepolje,,Приеполье,,,,43.54389,19.65139
+01a19263-5b1e-7585-b890-03519dc3fca2,pristina,Priština,,Приштина,,,,42.66667,21.16667
+01a19263-5b1e-7585-b890-03520b18f155,prizren,Prizren,,Призрен,,,,42.23,20.74
+01a19263-5b1e-7585-b890-0353d34d8540,prokuplje,Prokuplje,,Прокуплье,,,,43.23389,21.58611
+01a19263-5b23-77c3-a38a-1e4d7562e023,raca,Rača,,Рача,,,,44.23333,20.98333
+01a19263-5b23-77c3-a38a-1e4ed0dab1ee,raska,Raška,,Рашка,,,,43.28556,20.60917
+01a19263-5b23-77c3-a38a-1e4f096f5fb6,razanj,Ražanj,,Ражань,,,,43.66667,21.55
+01a19263-5b24-744f-aada-0d76f1722abd,rekovac,Rekovac,,Рековац,,,,43.86667,21.13333
+01a19263-5b24-744f-aada-0d771f1ab4dd,ruma,Ruma,,Рума,,,,45.00306,19.82889
+01a19263-5b24-744f-aada-0d78fc8301be,sabac,Šabac,,Шабац,,,,44.75583,19.69389
+01a19263-5b24-744f-aada-0d7977f921af,secanj,Sečanj,,Сечань,,,,45.36667,20.77222
+01a19263-5b24-744f-aada-0d7ad7c8f008,senta,Senta,,Сента,,,,45.93139,20.09
+01a19263-5b24-744f-aada-0d7bbbc818a6,sid,Šid,,Шид,,,,45.12833,19.22639
+01a19263-5b24-744f-aada-0d7c00b6b6c1,sjenica,Sjenica,,Сеница,,,,43.26667,20.0
+01a19263-5b24-744f-aada-0d7d762e9a64,smederevo,Smederevo,,Смедерево,,,,44.66333,20.92889
+01a19263-5b24-744f-aada-0d7ebcacd163,smederevska-palanka,Smederevska Palanka,,Смедеревска-Паланка,,,,44.3655,20.95867
+01a19263-5b24-744f-aada-0d7fce658960,sokobanja,Sokobanja,,Сокобаня,,,,43.63944,21.86944
+01a19263-5b24-744f-aada-0d80e7aae15d,sombor,Sombor,,Сомбор,,,,45.78,19.12
+01a19263-5b24-744f-aada-0d81d195d3ad,srbica,Srbica,,Србица,,,,42.7475,20.78806
+01a19263-5b25-700d-a278-f45ea4edbef0,srbobran,Srbobran,,Србобран,,,,45.55222,19.80167
+01a19263-5b25-700d-a278-f45f099cff25,sremska-mitrovica,Sremska Mitrovica,,Сремска-Митровица,,,,44.96645,19.61011
+01a19263-5b25-700d-a278-f460fa1de4fa,sremski-karlovci,Sremski Karlovci,,Сремски-Карловци,,,,45.2,19.93333
+01a19263-5b25-700d-a278-f461455ee623,stara-pazova,Stara Pazova,,Стара-Пазова,,,,44.98333,20.16667
+01a19263-5b25-700d-a278-f46231065301,stimlje,Štimlje,,Штимлье,,,,42.43333,21.03333
+01a19263-5b25-700d-a278-f463ed27dc03,strpce,Štrpce,,Штрпце,,,,42.23944,21.02722
+01a19263-5b25-700d-a278-f46421776a64,subotica,Subotica,,Суботица,,,,46.10021,19.66533
+01a19263-5b25-700d-a278-f465aca17f4f,surdulica,Surdulica,,Сурдулица,,,,42.695,22.16722
+01a19263-5b25-700d-a278-f46607e837ab,suva-reka,Suva Reka,,Сува-Река,,,,42.38,20.82194
+01a19263-5b25-700d-a278-f46764d8eabf,svilajnac,Svilajnac,,Свилайнац,,,,44.23331,21.19473
+01a19263-5b25-700d-a278-f46818805cda,svrljig,Svrljig,,Сврлиг,,,,43.41667,22.11667
+01a19263-5b25-700d-a278-f4699201c7da,temerin,Temerin,,Темерин,,,,45.40528,19.88694
+01a19263-5b26-748a-a06d-58ce1c8005e7,titel,Titel,,Тител,,,,45.2,20.3
+01a19263-5b26-748a-a06d-58cf2a8a44e2,topola,Topola,,Топола,,,,44.2525,20.67611
+01a19263-5b26-748a-a06d-58d0fd91f702,trgoviste,Trgovište,,Трговиште,,,,42.36368,22.08321
+01a19263-5b26-748a-a06d-58d1b5ea8120,trstenik,Trstenik,,Трстеник,,,,43.61861,20.99722
+01a19263-5b26-748a-a06d-58d23657dad0,tutin,Tutin,,Тутин,,,,42.9875,20.32556
+01a19263-5b26-748a-a06d-58d34cddbaa6,ub,Ub,,Уб,,,,44.45,20.06667
+01a19263-5b26-748a-a06d-58d42d14aa79,urosevac,Uroševac,,Урошевац,,,,42.37,21.155
+01a19263-5b26-748a-a06d-58d594251f87,uzice,Užice,,Ужице,,,,43.85,19.85
+01a19263-5b26-748a-a06d-58d6b90030cf,valjevo,Valjevo,,Валево,,,,44.26667,19.88333
+01a19263-5b26-748a-a06d-58d7cf99301b,varvarin,Varvarin,,Варварин,,,,43.71667,21.36667
+01a19263-5b26-748a-a06d-58d8fdc00bd8,velika-plana,Velika Plana,,Велика-Плана,,,,44.33333,21.08333
+01a19263-5b27-7759-af85-93150ec7f6e4,veliko-gradiste,Veliko Gradište,,Велико-Градиште,,,,44.75,21.51667
+01a19263-5b27-7759-af85-931657670c14,vitina,Vitina,,Витина,,,,42.32139,21.35833
+01a19263-5b27-7759-af85-9317fc1c5c61,vladicin-han,Vladičin Han,,Владичин-Хан,,,,42.70778,22.05917
+01a19263-5b27-7759-af85-931888f6e43f,vladimirci,Vladimirci,,Владимирци,,,,44.61667,19.78333
+01a19263-5b27-7759-af85-93190babf389,vlasotince,Vlasotince,,Власотинце,,,,42.96667,22.13333
+01a19263-5b27-7759-af85-931a2bf62b9a,vranje,Vranje,,Вранье,,,,42.55417,21.89722
+01a19263-5b27-7759-af85-931bcff4cc97,vrbas,Vrbas,,Врбас,,,,45.56972,19.63778
+01a19263-5b27-7759-af85-931cd7315836,vrnjacka-banja,Vrnjačka Banja,,Врнячка-Баня,,,,43.61667,20.9
+01a19263-5b27-7759-af85-931dbe3852fa,vrsac,Vršac,,Вршац,,,,45.12056,21.29861
+01a19263-5b27-7759-af85-931ef3982cfb,vucitrn,Vučitrn,,Вучитрн,,,,42.82222,20.96667
+01a19263-5b27-7759-af85-931fbe72f12b,zabalj,Žabalj,,Жабаль,,,,45.36667,20.06667
+01a19263-5b28-75ee-8018-b982d0b783d5,zabari,Žabari,,Жабари,,,,44.35367,21.209
+01a19263-5b28-75ee-8018-b983cdd25736,zagubica,Žagubica,,Жагубица,,,,44.19067,21.78933
+01a19263-5b28-75ee-8018-b98472288c18,zajecar,Zaječar,,Заечар,,,,43.90417,22.28472
+01a19263-5b28-75ee-8018-b985cbd9e2ff,zitiste,Žitište,,Житиште,,,,45.485,20.54972
+01a19263-5b28-75ee-8018-b986391062de,zitoradja,Žitorađa,,Житораджа,,,,43.18333,21.71667
+01a19263-5b28-75ee-8018-b98704e89e79,zrenjanin,Zrenjanin,,Зренянин,,,,45.37778,20.38611
+01a19263-5b28-75ee-8018-b9884bfe8244,zubin-potok,Zubin Potok,,Зубин-Поток,,,,42.91667,20.68333
+01a19263-5b28-75ee-8018-b9899942fc30,zvecan,Zvečan,,Звечан,,,,42.91,20.84

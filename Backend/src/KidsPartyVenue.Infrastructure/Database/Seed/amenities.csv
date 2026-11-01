@@ -1,0 +1,15 @@
+# Venue amenities, in display order. IDs are fixed: never change them once released.
+id,slug,sort_order,name_sr,name_en,name_ru
+01a19263-5b30-722c-9614-c585e4588a18,parking,1,Parking,Parking,Парковка
+01a19263-5b30-722c-9614-c5865d500eb1,klima-uredjaj,2,Klima uređaj,Air conditioning,Кондиционер
+01a19263-5b30-722c-9614-c58760a30118,wi-fi,3,Wi-Fi,Wi-Fi,Wi-Fi
+01a19263-5b30-722c-9614-c58804ab5580,dvoriste,4,Dvorište,Outdoor area,Открытая площадка
+01a19263-5b30-722c-9614-c589ec244a62,kafic-za-roditelje,5,Kafić za roditelje,Café for parents,Кафе для родителей
+01a19263-5b30-722c-9614-c58afd9c21d4,prilaz-za-kolica,6,Prilaz za kolica,Stroller access,Доступ для колясок
+01a19263-5b30-722c-9614-c58bfd4b59c2,sto-za-presvlacenje-beba,7,Sto za presvlačenje beba,Baby changing table,Пеленальный столик
+01a19263-5b31-7634-a272-560179ad2912,kutak-za-bebe,8,Kutak za bebe,Baby corner,Уголок для малышей
+01a19263-5b31-7634-a272-5602e6767e12,trampolina,9,Trampolina,Trampoline,Батут
+01a19263-5b31-7634-a272-5603cd0d8972,lavirint,10,Lavirint,Play maze,Лабиринт
+01a19263-5b31-7634-a272-5604c3f275c6,bazen-sa-lopticama,11,Bazen sa lopticama,Ball pit,Сухой бассейн
+01a19263-5b31-7634-a272-56053d1817c0,ozvucenje,12,Ozvučenje,Sound system,Звуковая система
+01a19263-5b31-7634-a272-56062fde9c2e,projektor,13,Projektor,Projector,Проектор
