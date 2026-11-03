@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Logo } from '../../../shared/ui/logo/logo';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../shared/ui/button/button';
@@ -7,6 +7,7 @@ import { DinPipe } from '../../../shared/util/din-pipe';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { INQUIRY_STATUS_META, InquiryStatus } from '../../../shared/domain/inquiry-status';
 import { InquiryStatusBadge } from '../../../shared/domain/inquiry-status-badge/inquiry-status-badge';
+import { ProviderCard, ProviderCardData } from '../../public/shared/provider-card/provider-card';
 
 interface Swatch {
   name: string;
@@ -15,7 +16,7 @@ interface Swatch {
 }
 
 @Component({
-  imports: [Logo, Icon, Button, DinPipe, Badge, InquiryStatusBadge],
+  imports: [Logo, Icon, Button, DinPipe, Badge, InquiryStatusBadge, ProviderCard],
   selector: 'app-styleguide',
   styleUrl: './styleguide.css',
   templateUrl: './styleguide.html',
@@ -109,4 +110,99 @@ export class Styleguide {
   };
   // 💬 Serbian has 3 forms: 1 → one, 2 → few, 5 → other
   protected readonly plurals = [1, 2, 5].map((count) => pluralSr(count, this.slotForms));
+
+  protected readonly providerCardsData: ProviderCardData[] = [
+    {
+      slug: 'igraonica-baloncic',
+      name: 'Igraonica Balončić',
+      district: 'Liman 2',
+      photoUrl:
+        'https://fastly.picsum.photos/id/30/1280/901.jpg?hmac=A_hpFyEavMBB7Dsmmp53kPXKmatwM05MUDatlWSgATE',
+      fromPrice: 10000, // per child
+      kidsCapacity: 25,
+      nextFreeSlots: [],
+      isSponsored: true,
+    },
+    {
+      slug: 'lumpa-land',
+      name: 'Lumpa Land',
+      district: 'Novo Naselje',
+      photoUrl:
+        'https://fastly.picsum.photos/id/32/4032/3024.jpg?hmac=n7I3OdGszMIwuGcvplNthgBmAxvAZ3rNBBSuDFZaItQ',
+      fromPrice: 10000, // per child
+      kidsCapacity: 25,
+      nextFreeSlots: [
+        {
+          date: '2026-11-14',
+          start: '11:00:00',
+          end: '13:00:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '13:30:00',
+          end: '15:30:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '16:00:00',
+          end: '18:00:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '18:30:00',
+          end: '20:30:00',
+        },
+      ],
+      isSponsored: false,
+    },
+    {
+      slug: 'peskograd',
+      name: 'Peskograd',
+      district: 'Veternik',
+      photoUrl:
+        'https://fastly.picsum.photos/id/34/3872/2592.jpg?hmac=4o5QGDd7eVRX8_ISsc5ZzGrHsFYDoanmcsz7kyu8A9A',
+      fromPrice: 10000, // per child
+      kidsCapacity: 25,
+      nextFreeSlots: [
+        {
+          date: '2026-11-14',
+          start: '11:00:00',
+          end: '13:00:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '13:30:00',
+          end: '15:30:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '16:00:00',
+          end: '18:00:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '18:30:00',
+          end: '20:30:00',
+        },
+        {
+          date: '2026-11-14',
+          start: '21:00:00',
+          end: '23:00:00',
+        },
+      ],
+      isSponsored: false,
+    },
+  ];
+
+  protected readonly favourites = signal<Set<string>>(new Set<string>());
+
+  protected onFavoriteToggle(slug: string) {
+    this.favourites.update((f) => {
+      if (f.has(slug)) {
+        return new Set(Array.from(f).filter((s) => s !== slug));
+      } else {
+        return new Set([...Array.from(f), slug]);
+      }
+    });
+  }
 }

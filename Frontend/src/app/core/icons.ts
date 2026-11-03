@@ -62,6 +62,6 @@ export function provideAppIcons() {
     LucideUsers,
     LucideX,
     LucideEye,
-    LucideBanknote
+    LucideBanknote,
   );
 }

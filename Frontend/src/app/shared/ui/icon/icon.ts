@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
@@ -11,6 +11,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
       [attr.aria-hidden]="label() ? null : 'true'"
       [attr.aria-label]="label() ?? null"
       [attr.role]="label() ? 'img' : null"
+      [attr.fill]="filled() ? 'currentColor' : 'none'"
     ></svg>
   `,
   host: { class: 'inline-flex shrink-0' },
@@ -21,4 +22,5 @@ export class Icon {
   readonly size = input(24);
   /** Only for an icon that stands alone and means something. Icons next to text get no label. */
   readonly label = input<string>();
+  readonly filled = input(false, { transform: booleanAttribute });
 }

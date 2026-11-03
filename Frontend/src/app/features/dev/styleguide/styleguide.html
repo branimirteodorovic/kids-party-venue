@@ -150,4 +150,17 @@
       </div>
     </dl>
   </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Ponuđači</h2>
+    <div class="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
+      @for (d of providerCardsData; track d.slug) {
+        <app-provider-card
+          [data]="d"
+          [isFavorite]="favourites().has(d.slug)"
+          (favoriteToggle)="onFavoriteToggle($event)"
+        />
+      }
+    </div>
+  </section>
 </main>
