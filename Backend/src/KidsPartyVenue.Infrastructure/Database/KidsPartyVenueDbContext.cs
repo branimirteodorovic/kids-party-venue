@@ -1,6 +1,7 @@
 using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.Cities;
+using KidsPartyVenue.Domain.Providers;
 using KidsPartyVenue.Domain.Users;
 using KidsPartyVenue.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public class KidsPartyVenueDbContext(DbContextOptions<KidsPartyVenueDbContext> o
     public DbSet<District> Districts { get; set; }
 
     public DbSet<Amenity> Amenities { get; set; }
+
+    public DbSet<Provider> Providers { get; set; }
 
     public async Task<ITransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
         new EfTransaction(await Database.BeginTransactionAsync(cancellationToken));

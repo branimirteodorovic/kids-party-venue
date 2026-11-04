@@ -6,6 +6,7 @@ using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Domain.Providers;
 using KidsPartyVenue.Domain.Users;
 using KidsPartyVenue.Infrastructure.Authentication;
 using KidsPartyVenue.Infrastructure.Authorization;
@@ -16,6 +17,7 @@ using KidsPartyVenue.Infrastructure.Data;
 using KidsPartyVenue.Infrastructure.Database;
 using KidsPartyVenue.Infrastructure.Identity;
 using KidsPartyVenue.Infrastructure.Localization;
+using KidsPartyVenue.Infrastructure.Providers;
 using KidsPartyVenue.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +59,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<ILanguageContext, LanguageContext>();
 
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IProviderRepository, ProviderRepository>();
 
         SqlMapper.AddTypeHandler(new GenericArrayHandler<string>());
 
