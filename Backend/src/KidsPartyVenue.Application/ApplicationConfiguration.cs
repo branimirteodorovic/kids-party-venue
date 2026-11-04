@@ -2,6 +2,7 @@
 using FluentValidation;
 using KidsPartyVenue.Application.Behaviors;
 using KidsPartyVenue.Application.Messaging;
+using KidsPartyVenue.Application.Providers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KidsPartyVenue.Application;
@@ -39,6 +40,8 @@ public static class ApplicationConfiguration
         services.TryDecorate(typeof(IQueryHandler<,>), typeof(ExceptionHandlingDecorator.QueryHandler<,>));
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+
+        services.AddScoped<IProviderSlugGenerator, ProviderSlugGenerator>();
 
         // Error messages stay in English; the frontend translates errors by code
         ValidatorOptions.Global.LanguageManager.Enabled = false;

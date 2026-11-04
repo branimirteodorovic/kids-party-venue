@@ -1,7 +1,7 @@
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
-using KidsPartyVenue.Domain.Lookups;
 using KidsPartyVenue.Domain.Phones;
+using KidsPartyVenue.Domain.Slugs;
 
 namespace KidsPartyVenue.Domain.Providers;
 
@@ -69,9 +69,14 @@ public sealed class Provider : Entity
         bool isClaimed,
         DateTime utcNow)
     {
-        if (!LookupSlug.IsValid(slug))
+        if (!UrlSlug.IsValid(slug))
         {
             return Result.Failure<Provider>(ProviderErrors.InvalidSlug);
+        }
+
+        if (ProviderSlug.IsReserved(slug))
+        {
+            return Result.Failure<Provider>(ProviderErrors.ReservedSlug);
         }
 
         string trimmedName = name?.Trim() ?? string.Empty;

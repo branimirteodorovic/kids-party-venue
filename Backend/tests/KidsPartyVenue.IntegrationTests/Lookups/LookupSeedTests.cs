@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Providers;
+using KidsPartyVenue.Domain.Slugs;
 using KidsPartyVenue.Infrastructure.Identity;
 using KidsPartyVenue.IntegrationTests.Abstractions;
 using Microsoft.AspNetCore.Builder;
@@ -64,6 +65,20 @@ public sealed class LookupSeedTests(IntegrationTestWebAppFactory factory) : Base
         districts.Select(d => d.Slug).Should().Contain(["liman", "petrovaradin", "avijaticarsko-naselje"]);
         amenities.Should().HaveCount(13);
         amenities.Select(a => a.Slug).Should().StartWith(["parking", "klima-uredjaj", "wi-fi"]);
+    }
+
+    [Fact]
+    public async Task FromName_ShouldGiveSeededSlug_ForEverySeededSerbianName()
+    {
+        // Act
+        List<City> cities = await DbContext.Cities.AsNoTracking().ToListAsync();
+        List<District> districts = await DbContext.Districts.AsNoTracking().ToListAsync();
+        List<Amenity> amenities = await DbContext.Amenities.AsNoTracking().ToListAsync();
+
+        // Assert
+        cities.Should().AllSatisfy(c => UrlSlug.FromName(c.Name.Sr).Should().Be(c.Slug));
+        districts.Should().AllSatisfy(d => UrlSlug.FromName(d.Name.Sr).Should().Be(d.Slug));
+        amenities.Should().AllSatisfy(a => UrlSlug.FromName(a.Name.Sr).Should().Be(a.Slug));
     }
 
     [Fact]

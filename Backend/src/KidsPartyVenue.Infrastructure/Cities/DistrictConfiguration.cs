@@ -1,5 +1,5 @@
 using KidsPartyVenue.Domain.Cities;
-using KidsPartyVenue.Domain.Lookups;
+using KidsPartyVenue.Domain.Slugs;
 using KidsPartyVenue.Infrastructure.Database.Seed;
 using KidsPartyVenue.Infrastructure.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ internal sealed class DistrictConfiguration : IEntityTypeConfiguration<District>
         builder.HasKey(d => d.Id);
         builder.Property(d => d.Id).ValueGeneratedNever();
 
-        builder.Property(d => d.Slug).HasMaxLength(LookupSlug.MaxLength);
+        builder.Property(d => d.Slug).HasMaxLength(UrlSlug.MaxLength);
         builder.HasIndex(d => new { d.CityId, d.Slug }).IsUnique();
 
         builder.OwnsOne(d => d.Name, name =>

@@ -1,7 +1,7 @@
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Localization;
-using KidsPartyVenue.Domain.Lookups;
 using KidsPartyVenue.Domain.Providers;
+using KidsPartyVenue.Domain.Slugs;
 
 namespace KidsPartyVenue.Domain.Cities;
 
@@ -31,7 +31,7 @@ public sealed class City : Entity
 
     public static Result<City> Create(string slug, LocalizedText name, GeoCoordinate center, LocalizedText? locativeName = null)
     {
-        if (!LookupSlug.IsValid(slug))
+        if (!UrlSlug.IsValid(slug))
         {
             return Result.Failure<City>(CityErrors.InvalidSlug);
         }

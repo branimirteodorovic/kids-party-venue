@@ -1,5 +1,5 @@
 using KidsPartyVenue.Domain.Localization;
-using KidsPartyVenue.Domain.Lookups;
+using KidsPartyVenue.Domain.Slugs;
 
 namespace KidsPartyVenue.Domain.Cities;
 
@@ -20,7 +20,7 @@ public sealed class District : Entity
 
     public static Result<District> Create(Guid cityId, string slug, LocalizedText name)
     {
-        if (!LookupSlug.IsValid(slug))
+        if (!UrlSlug.IsValid(slug))
         {
             return Result.Failure<District>(DistrictErrors.InvalidSlug);
         }

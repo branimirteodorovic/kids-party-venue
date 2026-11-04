@@ -1,5 +1,5 @@
 using KidsPartyVenue.Domain.Amenities;
-using KidsPartyVenue.Domain.Lookups;
+using KidsPartyVenue.Domain.Slugs;
 using KidsPartyVenue.Infrastructure.Database.Seed;
 using KidsPartyVenue.Infrastructure.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ internal sealed class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();
 
-        builder.Property(a => a.Slug).HasMaxLength(LookupSlug.MaxLength);
+        builder.Property(a => a.Slug).HasMaxLength(UrlSlug.MaxLength);
         builder.HasIndex(a => a.Slug).IsUnique();
 
         builder.OwnsOne(a => a.Name, name =>

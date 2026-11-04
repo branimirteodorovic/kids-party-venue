@@ -1,7 +1,7 @@
 using KidsPartyVenue.Domain.Cities;
-using KidsPartyVenue.Domain.Lookups;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
+using KidsPartyVenue.Domain.Slugs;
 using KidsPartyVenue.Infrastructure.Geography;
 using KidsPartyVenue.Infrastructure.Phones;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
 
-        builder.Property(p => p.Slug).HasMaxLength(LookupSlug.MaxLength);
+        builder.Property(p => p.Slug).HasMaxLength(UrlSlug.MaxLength);
         builder.HasIndex(p => p.Slug).IsUnique();
 
         builder.Property(p => p.Name).HasMaxLength(Provider.NameMaxLength);

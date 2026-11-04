@@ -1,5 +1,5 @@
 using KidsPartyVenue.Domain.Localization;
-using KidsPartyVenue.Domain.Lookups;
+using KidsPartyVenue.Domain.Slugs;
 
 namespace KidsPartyVenue.Domain.Amenities;
 
@@ -21,7 +21,7 @@ public sealed class Amenity : Entity
 
     public static Result<Amenity> Create(string slug, LocalizedText name, int sortOrder)
     {
-        if (!LookupSlug.IsValid(slug))
+        if (!UrlSlug.IsValid(slug))
         {
             return Result.Failure<Amenity>(AmenityErrors.InvalidSlug);
         }

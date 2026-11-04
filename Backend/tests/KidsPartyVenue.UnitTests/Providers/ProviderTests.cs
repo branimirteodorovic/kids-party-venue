@@ -96,6 +96,16 @@ public sealed class ProviderTests
         result.Error.Should().Be(ProviderErrors.InvalidSlug);
     }
 
+    [Fact]
+    public void Create_ShouldFail_WhenSlugIsReserved()
+    {
+        // Act
+        Result<Provider> result = Create(slug: "kvart");
+
+        // Assert
+        result.Error.Should().Be(ProviderErrors.ReservedSlug);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
