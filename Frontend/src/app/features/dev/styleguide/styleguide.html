@@ -163,4 +163,17 @@
       }
     </div>
   </section>
+
+  <section>
+    <h2 class="mb-4 text-h2 desktop:text-h2-lg">Prazno stanje</h2>
+    <div class="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
+      <app-empty-state
+        heading="Nema slobodnih termina za taj datum"
+        message="Probajte drugi datum ili uklonite neki filter."
+        icon="search"
+      >
+        <button type="button" appButton variant="secondary">Promeni datum</button>
+      </app-empty-state>
+    </div>
+  </section>
 </main>

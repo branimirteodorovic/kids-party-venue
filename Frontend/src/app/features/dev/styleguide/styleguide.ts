@@ -8,6 +8,7 @@ import { Badge } from '../../../shared/ui/badge/badge';
 import { INQUIRY_STATUS_META, InquiryStatus } from '../../../shared/domain/inquiry-status';
 import { InquiryStatusBadge } from '../../../shared/domain/inquiry-status-badge/inquiry-status-badge';
 import { ProviderCard, ProviderCardData } from '../../public/shared/provider-card/provider-card';
+import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 
 interface Swatch {
   name: string;
@@ -16,7 +17,7 @@ interface Swatch {
 }
 
 @Component({
-  imports: [Logo, Icon, Button, DinPipe, Badge, InquiryStatusBadge, ProviderCard],
+  imports: [Logo, Icon, Button, DinPipe, Badge, InquiryStatusBadge, ProviderCard, EmptyState],
   selector: 'app-styleguide',
   styleUrl: './styleguide.css',
   templateUrl: './styleguide.html',
