@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { Styleguide } from './features/dev/styleguide/styleguide';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [Styleguide],
+  imports: [RouterOutlet],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
