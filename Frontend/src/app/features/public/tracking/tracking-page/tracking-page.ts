@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   imports: [],
@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   styleUrl: './tracking-page.css',
   templateUrl: './tracking-page.html',
 })
-export class TrackingPage {}
+export class TrackingPage {
+  readonly token = input<string>();
+}

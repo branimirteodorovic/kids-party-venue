@@ -1,1 +1,26 @@
 <h1 class="text-h1 desktop:text-h1-lg">Pretraga</h1>
+<dl>
+  <dt>Category</dt>
+  <dd>{{ category() ?? '—' }}</dd>
+
+  <dt>City</dt>
+  <dd>{{ city() ?? '—' }}</dd>
+
+  <dt>District</dt>
+  <dd>{{ district() ?? '—' }}</dd>
+
+  <dt>Date</dt>
+  <dd>{{ date() ?? '—' }}</dd>
+
+  <dt>Part of Day</dt>
+  <dd>{{ partOfDay() ?? '—' }}</dd>
+
+  <dt>Kids</dt>
+  <dd>{{ kids() ?? '—' }}</dd>
+
+  <dt>Adults</dt>
+  <dd>{{ adults() ?? '—' }}</dd>
+</dl>
+
+<a routerLink="." [queryParams]="{ datum: '2026-11-21' }" queryParamsHandling="merge">Sledeća subota</a>
+<a routerLink="." [queryParams]="{ deca: 20 }" queryParamsHandling="merge">20 dece</a>
