@@ -1,3 +1,4 @@
+using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
@@ -40,6 +41,9 @@ public sealed class Provider : Entity
     public GeoCoordinate Location { get; private set; } = null!;
 
     public PhoneNumber? Phone { get; private set; }
+
+    /// <summary>Null until the provider sets its terms; required before review.</summary>
+    public BookingPolicy? BookingPolicy { get; private set; }
 
     public ProviderStatus Status { get; private set; }
 
@@ -145,5 +149,13 @@ public sealed class Provider : Entity
             CreatedAtUtc = utcNow,
             UpdatedAtUtc = utcNow
         };
+    }
+
+    public void ChangeBookingPolicy(BookingPolicy policy, DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(policy);
+
+        BookingPolicy = policy;
+        UpdatedAtUtc = utcNow;
     }
 }

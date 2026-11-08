@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Dapper;
 using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
@@ -22,6 +23,7 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
     private const string UniqueViolation = "23505";
     private const string ForeignKeyViolation = "23503";
     private const string RestrictViolation = "23001";
+    private const string CheckViolation = "23514";
 
     // Beograd has no districts in the seed, so a provider there needs none
     private const string CityWithoutDistrictsSlug = "beograd";
@@ -194,6 +196,107 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         definition.Should().Contain("USING gist (location)");
     }
 
+    [Theory]
+    [InlineData(DepositType.None, null, null, 0)]
+    [InlineData(DepositType.Percentage, 30, 3, 7)]
+    [InlineData(DepositType.FixedAmount, 5000, 5, 14)]
+    public async Task BookingPolicy_ShouldBeStored_WhenItIsSet(
+        DepositType depositType, int? depositValue, int? depositDueDays, int freeCancellationDays)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        BookingPolicy policy = BookingPolicy.Create(depositType, depositValue, depositDueDays, freeCancellationDays).Value;
+        provider.ChangeBookingPolicy(policy, DateTime.UtcNow);
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.BookingPolicy.Should().Be(policy);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ChangeBookingPolicy_ShouldBeStored_WhenProviderIsLoadedFromDatabase(bool hadPolicy)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        if (hadPolicy)
+        {
+            provider.ChangeBookingPolicy(BookingPolicy.Create(DepositType.None, null, null, 7).Value, DateTime.UtcNow);
+        }
+
+        await SaveAsync(provider);
+        BookingPolicy policy = BookingPolicy.Create(DepositType.FixedAmount, 5000, 5, 14).Value;
+
+        // Act: load tracked in a new scope and replace the policy, as the 1.9 command will
+        using (IServiceScope scope = _factory.Services.CreateScope())
+        {
+            Provider loaded = (await scope.ServiceProvider.GetRequiredService<IProviderRepository>()
+                .GetByIdAsync(provider.Id, CancellationToken.None))!;
+            loaded.ChangeBookingPolicy(policy, DateTime.UtcNow);
+            await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync();
+        }
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.BookingPolicy.Should().Be(policy);
+    }
+
+    [Fact]
+    public async Task BookingPolicy_ShouldBeNull_WhenItIsNotSet()
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.BookingPolicy.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("None", 10, null, 7)]
+    [InlineData("None", null, 3, 7)]
+    [InlineData("Percentage", null, null, 7)]
+    [InlineData("FixedAmount", 5000, null, 7)]
+    public async Task BookingPolicy_ShouldBeRejected_WhenDepositColumnsDoNotMatchType(
+        string depositType, int? depositValue, int? depositDueDays, int freeCancellationDays)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => UpdateBookingPolicyAsync(
+            provider.Id, depositType, depositValue, depositDueDays, freeCancellationDays);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_booking_deposit");
+    }
+
+    [Theory]
+    [InlineData(null, 7)]
+    [InlineData("None", null)]
+    public async Task BookingPolicy_ShouldBeRejected_WhenItIsIncomplete(string? depositType, int? freeCancellationDays)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => UpdateBookingPolicyAsync(provider.Id, depositType, null, null, freeCancellationDays);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_booking_policy_complete");
+    }
+
     // timestamptz keeps microseconds, so a time with finer ticks wouldn't come back equal
     private static DateTime UtcNowInMicroseconds()
     {
@@ -232,6 +335,23 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         }
 
         await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync();
+    }
+
+    // Writes the columns directly, past the domain rules, so only the check constraints can stop it
+    private async Task UpdateBookingPolicyAsync(
+        Guid id, string? depositType, int? depositValue, int? depositDueDays, int? freeCancellationDays)
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+        KidsPartyVenueDbContext context = scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+        await context.Database.ExecuteSqlAsync(
+            $"""
+            UPDATE providers
+            SET booking_deposit_type = {depositType},
+                booking_deposit_value = {depositValue},
+                booking_deposit_due_days = {depositDueDays},
+                booking_free_cancellation_days = {freeCancellationDays}
+            WHERE id = {id}
+            """);
     }
 
     // Rolled back, so a missing foreign key can't delete seed data that other tests need

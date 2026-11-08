@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Localization;
@@ -248,6 +249,46 @@ public sealed class ProviderTests
 
         // Assert
         result.Error.Should().Be(ProviderErrors.LocationOutsideSerbia);
+    }
+
+    [Fact]
+    public void Create_ShouldLeaveBookingPolicyEmpty()
+    {
+        // Act
+        Result<Provider> result = Create();
+
+        // Assert
+        result.Value.BookingPolicy.Should().BeNull();
+    }
+
+    [Fact]
+    public void ChangeBookingPolicy_ShouldSetPolicyAndUpdatedAt()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        BookingPolicy policy = BookingPolicy.Create(DepositType.Percentage, 30, 3, 7).Value;
+        DateTime later = UtcNow.AddMinutes(5);
+
+        // Act
+        provider.ChangeBookingPolicy(policy, later);
+
+        // Assert
+        provider.BookingPolicy.Should().Be(policy);
+        provider.UpdatedAtUtc.Should().Be(later);
+        provider.CreatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Fact]
+    public void ChangeBookingPolicy_ShouldThrow_WhenPolicyIsNull()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        Action act = () => provider.ChangeBookingPolicy(null!, UtcNow);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
     }
 
     private static Result<Provider> Create(

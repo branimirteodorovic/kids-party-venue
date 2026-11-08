@@ -1518,7 +1518,12 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_providers_slug");
 
-                    b.ToTable("providers", (string)null);
+                    b.ToTable("providers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_providers_booking_deposit", "booking_deposit_type IS NULL\nOR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)\nOR (booking_deposit_type IN ('Percentage', 'FixedAmount')\n    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_providers_booking_policy_complete", "(booking_deposit_type IS NULL AND booking_deposit_value IS NULL\n    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)\nOR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
@@ -3373,6 +3378,42 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasForeignKey("DistrictId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_providers_districts_district_id");
+
+                    b.OwnsOne("KidsPartyVenue.Domain.BookingPolicies.BookingPolicy", "BookingPolicy", b1 =>
+                        {
+                            b1.Property<Guid>("ProviderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<int?>("DepositDueDays")
+                                .HasColumnType("integer")
+                                .HasColumnName("booking_deposit_due_days");
+
+                            b1.Property<string>("DepositType")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("booking_deposit_type");
+
+                            b1.Property<decimal?>("DepositValue")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("booking_deposit_value");
+
+                            b1.Property<int>("FreeCancellationDays")
+                                .HasColumnType("integer")
+                                .HasColumnName("booking_free_cancellation_days");
+
+                            b1.HasKey("ProviderId");
+
+                            b1.ToTable("providers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProviderId")
+                                .HasConstraintName("fk_providers_providers_id");
+                        });
+
+                    b.Navigation("BookingPolicy");
                 });
 
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>

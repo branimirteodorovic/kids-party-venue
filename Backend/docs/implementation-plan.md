@@ -106,7 +106,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - Words used by the public URL structure (`kvart`) are never generated as a slug.
 
 ### 1.5 BookingPolicy
-- A value object with deposit type and value, deposit due days, free cancellation days and quantity change days.
+- A value object with deposit type and value, deposit due days and free cancellation days.
 
 ### 1.6 VenueDetails
 - Capacities, age range, outside catering and cake rules, included food, own animator or photographer, smoking area.
@@ -266,7 +266,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - Rate limits per IP and per phone number, a honeypot field, and an allow-list of country codes.
 
 ### 5.2 Price quote and booking terms
-- Pure calculators for price (pricing models, minimum quantity, extras) and booking terms: deposit amount, deposit due date, free-cancellation and quantity-change deadlines.
+- Pure calculators for price (pricing models, minimum quantity, extras) and booking terms: deposit amount, deposit due date and free-cancellation deadline. The quoted price is an estimate; the final price is agreed at the party (5.6).
 - A public quote endpoint.
 
 ### 5.3 Create inquiry
@@ -280,7 +280,8 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - Acceptance computes the terms and holds the slot in one transaction, protected against concurrent acceptance. Competing inquiries are declined automatically.
 
 ### 5.6 Booking payments
-- Recording the deposit, the balance and refunds. The slot becomes Booked once the deposit is recorded.
+- Recording the deposit, the final price the parent and the provider agree at the party, the balance and refunds. The slot becomes Booked once the deposit is recorded.
+- Parents pay the provider directly (cash, bank transfer, or card at the venue); no money passes through the platform. The provider records each payment. An NBS IPS QR for the deposit (reusing 6.4, with the provider's bank account and the inquiry number as the reference) is optional.
 
 ### 5.7 Cancellation, expiry and completion
 - Cancellation by the parent or the provider, refunded or forfeited depending on the deadline, with a manual refund override.
@@ -368,7 +369,6 @@ Phase 1 (Milestones 0–8) is the MVP. Everything below comes after it.
 |---|---|
 | P2.1 | Search by free slot in a time window |
 | P2.2 | Party request: one parent request creates inquiries to several providers in one transaction (after P2.11) |
-| P2.3 | Quantity change requests with the minimum-quantity floor and price recalculation |
 | P2.4 | Verified reviews through a one-time link after a completed booking, admin moderation, public provider replies, aggregate rating |
 | P2.5 | SMS and Viber Business notification channels |
 | P2.6 | Embeddable provider calendar |

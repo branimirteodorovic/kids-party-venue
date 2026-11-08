@@ -1,3 +1,4 @@
+using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
@@ -13,7 +14,24 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
 {
     public void Configure(EntityTypeBuilder<Provider> builder)
     {
-        builder.ToTable("providers");
+        builder.ToTable("providers", table =>
+        {
+            table.HasCheckConstraint(
+                "ck_providers_booking_policy_complete",
+                """
+                (booking_deposit_type IS NULL AND booking_deposit_value IS NULL
+                    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)
+                OR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)
+                """);
+            table.HasCheckConstraint(
+                "ck_providers_booking_deposit",
+                """
+                booking_deposit_type IS NULL
+                OR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)
+                OR (booking_deposit_type IN ('Percentage', 'FixedAmount')
+                    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)
+                """);
+        });
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
 
@@ -33,6 +51,18 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
         builder.Property(p => p.Phone)
             .HasConversion<PhoneNumberConverter>()
             .HasMaxLength(PhoneNumber.MaxLength);
+
+        // Owned, so the policy's columns live in this table and it is null until set
+        builder.OwnsOne(p => p.BookingPolicy, policy =>
+        {
+            policy.Property(b => b.DepositType)
+                .HasColumnName("booking_deposit_type")
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            policy.Property(b => b.DepositValue).HasColumnName("booking_deposit_value").HasPrecision(12, 2);
+            policy.Property(b => b.DepositDueDays).HasColumnName("booking_deposit_due_days");
+            policy.Property(b => b.FreeCancellationDays).HasColumnName("booking_free_cancellation_days");
+        });
 
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
 
