@@ -31,6 +31,22 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
                 OR (booking_deposit_type IN ('Percentage', 'FixedAmount')
                     AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)
                 """);
+            table.HasCheckConstraint(
+                "ck_providers_venue_details_complete",
+                """
+                (venue_max_children IS NULL AND venue_max_adults IS NULL AND venue_min_age IS NULL
+                    AND venue_max_age IS NULL AND venue_outside_catering IS NULL AND venue_outside_cake IS NULL
+                    AND venue_food_service IS NULL AND venue_has_own_animator IS NULL
+                    AND venue_has_own_photographer IS NULL AND venue_has_smoking_area IS NULL)
+                OR (venue_max_children IS NOT NULL AND venue_min_age IS NOT NULL AND venue_max_age IS NOT NULL
+                    AND venue_outside_catering IS NOT NULL AND venue_outside_cake IS NOT NULL
+                    AND venue_food_service IS NOT NULL AND venue_has_own_animator IS NOT NULL
+                    AND venue_has_own_photographer IS NOT NULL AND venue_has_smoking_area IS NOT NULL)
+                """);
+            table.HasCheckConstraint("ck_providers_venue_age_range", "venue_min_age <= venue_max_age");
+            table.HasCheckConstraint(
+                "ck_providers_venue_details_category",
+                "category = 'Venue' OR venue_max_children IS NULL");
         });
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
@@ -62,6 +78,30 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
             policy.Property(b => b.DepositValue).HasColumnName("booking_deposit_value").HasPrecision(12, 2);
             policy.Property(b => b.DepositDueDays).HasColumnName("booking_deposit_due_days");
             policy.Property(b => b.FreeCancellationDays).HasColumnName("booking_free_cancellation_days");
+        });
+
+        // Owned like the booking policy; the complete check makes venue_max_children stand for the whole set
+        builder.OwnsOne(p => p.VenueDetails, venue =>
+        {
+            venue.Property(v => v.MaxChildren).HasColumnName("venue_max_children");
+            venue.Property(v => v.MaxAdults).HasColumnName("venue_max_adults");
+            venue.Property(v => v.MinAge).HasColumnName("venue_min_age");
+            venue.Property(v => v.MaxAge).HasColumnName("venue_max_age");
+            venue.Property(v => v.OutsideCatering)
+                .HasColumnName("venue_outside_catering")
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            venue.Property(v => v.OutsideCake)
+                .HasColumnName("venue_outside_cake")
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            venue.Property(v => v.FoodService)
+                .HasColumnName("venue_food_service")
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            venue.Property(v => v.HasOwnAnimator).HasColumnName("venue_has_own_animator");
+            venue.Property(v => v.HasOwnPhotographer).HasColumnName("venue_has_own_photographer");
+            venue.Property(v => v.HasSmokingArea).HasColumnName("venue_has_smoking_area");
         });
 
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);

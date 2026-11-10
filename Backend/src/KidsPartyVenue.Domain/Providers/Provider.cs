@@ -3,6 +3,7 @@ using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Slugs;
+using KidsPartyVenue.Domain.Venues;
 
 namespace KidsPartyVenue.Domain.Providers;
 
@@ -44,6 +45,9 @@ public sealed class Provider : Entity
 
     /// <summary>Null until the provider sets its terms; required before review.</summary>
     public BookingPolicy? BookingPolicy { get; private set; }
+
+    /// <summary>Venues only; null until the venue sets them, and required before review.</summary>
+    public VenueDetails? VenueDetails { get; private set; }
 
     public ProviderStatus Status { get; private set; }
 
@@ -157,5 +161,20 @@ public sealed class Provider : Entity
 
         BookingPolicy = policy;
         UpdatedAtUtc = utcNow;
+    }
+
+    public Result ChangeVenueDetails(VenueDetails details, DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(details);
+
+        if (Category != ProviderCategory.Venue)
+        {
+            return Result.Failure(ProviderErrors.VenueDetailsNotForCategory);
+        }
+
+        VenueDetails = details;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
     }
 }

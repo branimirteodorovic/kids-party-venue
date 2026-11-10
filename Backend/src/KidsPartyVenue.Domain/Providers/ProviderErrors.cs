@@ -15,4 +15,5 @@ public static class ProviderErrors
     public static readonly Error DistrictNotInCity = Error.Validation("Providers.DistrictNotInCity", "The district is not in the provider's city");
     public static readonly Error DistrictRequired = Error.Validation("Providers.DistrictRequired", "A district is required in a city that has districts");
     public static readonly Error LocationOutsideSerbia = Error.Validation("Providers.LocationOutsideSerbia", "Location must be in Serbia");
+    public static readonly Error VenueDetailsNotForCategory = Error.Validation("Providers.VenueDetailsNotForCategory", "Only venues have venue details");
 }

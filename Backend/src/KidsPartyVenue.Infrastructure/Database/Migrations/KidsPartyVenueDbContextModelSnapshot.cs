@@ -1523,6 +1523,12 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("ck_providers_booking_deposit", "booking_deposit_type IS NULL\nOR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)\nOR (booking_deposit_type IN ('Percentage', 'FixedAmount')\n    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_providers_booking_policy_complete", "(booking_deposit_type IS NULL AND booking_deposit_value IS NULL\n    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)\nOR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_providers_venue_age_range", "venue_min_age <= venue_max_age");
+
+                            t.HasCheckConstraint("ck_providers_venue_details_category", "category = 'Venue' OR venue_max_children IS NULL");
+
+                            t.HasCheckConstraint("ck_providers_venue_details_complete", "(venue_max_children IS NULL AND venue_max_adults IS NULL AND venue_min_age IS NULL\n    AND venue_max_age IS NULL AND venue_outside_catering IS NULL AND venue_outside_cake IS NULL\n    AND venue_food_service IS NULL AND venue_has_own_animator IS NULL\n    AND venue_has_own_photographer IS NULL AND venue_has_smoking_area IS NULL)\nOR (venue_max_children IS NOT NULL AND venue_min_age IS NOT NULL AND venue_max_age IS NOT NULL\n    AND venue_outside_catering IS NOT NULL AND venue_outside_cake IS NOT NULL\n    AND venue_food_service IS NOT NULL AND venue_has_own_animator IS NOT NULL\n    AND venue_has_own_photographer IS NOT NULL AND venue_has_smoking_area IS NOT NULL)");
                         });
                 });
 
@@ -3413,7 +3419,70 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                                 .HasConstraintName("fk_providers_providers_id");
                         });
 
+                    b.OwnsOne("KidsPartyVenue.Domain.Venues.VenueDetails", "VenueDetails", b1 =>
+                        {
+                            b1.Property<Guid>("ProviderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("FoodService")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("venue_food_service");
+
+                            b1.Property<bool>("HasOwnAnimator")
+                                .HasColumnType("boolean")
+                                .HasColumnName("venue_has_own_animator");
+
+                            b1.Property<bool>("HasOwnPhotographer")
+                                .HasColumnType("boolean")
+                                .HasColumnName("venue_has_own_photographer");
+
+                            b1.Property<bool>("HasSmokingArea")
+                                .HasColumnType("boolean")
+                                .HasColumnName("venue_has_smoking_area");
+
+                            b1.Property<int?>("MaxAdults")
+                                .HasColumnType("integer")
+                                .HasColumnName("venue_max_adults");
+
+                            b1.Property<int>("MaxAge")
+                                .HasColumnType("integer")
+                                .HasColumnName("venue_max_age");
+
+                            b1.Property<int>("MaxChildren")
+                                .HasColumnType("integer")
+                                .HasColumnName("venue_max_children");
+
+                            b1.Property<int>("MinAge")
+                                .HasColumnType("integer")
+                                .HasColumnName("venue_min_age");
+
+                            b1.Property<string>("OutsideCake")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("venue_outside_cake");
+
+                            b1.Property<string>("OutsideCatering")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("venue_outside_catering");
+
+                            b1.HasKey("ProviderId");
+
+                            b1.ToTable("providers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProviderId")
+                                .HasConstraintName("fk_providers_providers_id");
+                        });
+
                     b.Navigation("BookingPolicy");
+
+                    b.Navigation("VenueDetails");
                 });
 
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>

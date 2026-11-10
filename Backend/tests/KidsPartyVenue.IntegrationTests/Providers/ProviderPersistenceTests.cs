@@ -8,6 +8,7 @@ using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
+using KidsPartyVenue.Domain.Venues;
 using KidsPartyVenue.Infrastructure.Database;
 using KidsPartyVenue.Infrastructure.Identity;
 using KidsPartyVenue.IntegrationTests.Abstractions;
@@ -297,6 +298,129 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         error.ConstraintName.Should().Be("ck_providers_booking_policy_complete");
     }
 
+    [Theory]
+    [InlineData(20)]
+    [InlineData(0)]
+    [InlineData(null)]
+    public async Task VenueDetails_ShouldBeStored_WhenTheyAreSet(int? maxAdults)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        VenueDetails details = VenueDetails.Create(
+            30, maxAdults, 3, 10, OutsideFoodRule.AllowedWithFee, OutsideFoodRule.Allowed, FoodService.Included,
+            hasOwnAnimator: true, hasOwnPhotographer: true, hasSmokingArea: false).Value;
+        provider.ChangeVenueDetails(details, DateTime.UtcNow);
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.VenueDetails.Should().Be(details);
+    }
+
+    [Fact]
+    public async Task VenueDetails_ShouldBeNull_WhenTheyAreNotSet()
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.VenueDetails.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ChangeVenueDetails_ShouldBeStored_WhenProviderIsLoadedFromDatabase(bool hadDetails)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        if (hadDetails)
+        {
+            provider.ChangeVenueDetails(
+                VenueDetails.Create(
+                    20, null, 2, 8, OutsideFoodRule.Allowed, OutsideFoodRule.Allowed, FoodService.None,
+                    hasOwnAnimator: false, hasOwnPhotographer: false, hasSmokingArea: true).Value,
+                DateTime.UtcNow);
+        }
+
+        await SaveAsync(provider);
+        VenueDetails details = VenueDetails.Create(
+            40, 30, 4, 12, OutsideFoodRule.NotAllowed, OutsideFoodRule.AllowedWithFee, FoodService.ForPurchase,
+            hasOwnAnimator: true, hasOwnPhotographer: false, hasSmokingArea: false).Value;
+
+        // Act: load tracked in a new scope and replace the details, as the 1.9 command will
+        using (IServiceScope scope = _factory.Services.CreateScope())
+        {
+            Provider loaded = (await scope.ServiceProvider.GetRequiredService<IProviderRepository>()
+                .GetByIdAsync(provider.Id, CancellationToken.None))!;
+            loaded.ChangeVenueDetails(details, DateTime.UtcNow);
+            await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync();
+        }
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.VenueDetails.Should().Be(details);
+    }
+
+    [Theory]
+    [InlineData(null, 3, "Included", true)]
+    [InlineData(30, null, "Included", true)]
+    [InlineData(30, 3, null, true)]
+    [InlineData(30, 3, "Included", null)]
+    public async Task VenueDetails_ShouldBeRejected_WhenTheyAreIncomplete(
+        int? maxChildren, int? minAge, string? foodService, bool? hasSmokingArea)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => UpdateVenueDetailsAsync(
+            provider.Id, maxChildren: maxChildren, minAge: minAge, foodService: foodService, hasSmokingArea: hasSmokingArea);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_venue_details_complete");
+    }
+
+    [Fact]
+    public async Task VenueDetails_ShouldBeRejected_WhenMinAgeIsGreaterThanMaxAge()
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => UpdateVenueDetailsAsync(provider.Id, minAge: 7, maxAge: 6);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_venue_age_range");
+    }
+
+    [Theory]
+    [InlineData(ProviderCategory.Catering)]
+    [InlineData(ProviderCategory.Cakes)]
+    public async Task VenueDetails_ShouldBeRejected_WhenProviderIsNotAVenue(ProviderCategory category)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug(), category: category);
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => UpdateVenueDetailsAsync(provider.Id);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_venue_details_category");
+    }
+
     // timestamptz keeps microseconds, so a time with finer ticks wouldn't come back equal
     private static DateTime UtcNowInMicroseconds()
     {
@@ -314,12 +438,13 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         return await DbContext.Districts.AsNoTracking().FirstAsync(d => d.CityId == noviSad.Id);
     }
 
-    private async Task<Provider> CreateInCityWithoutDistrictsAsync(string slug, GeoCoordinate? location = null)
+    private async Task<Provider> CreateInCityWithoutDistrictsAsync(
+        string slug, GeoCoordinate? location = null, ProviderCategory category = ProviderCategory.Venue)
     {
         City city = await DbContext.Cities.AsNoTracking().SingleAsync(c => c.Slug == CityWithoutDistrictsSlug);
 
         return Provider.Create(
-            slug, Faker.Company.CompanyName(), ProviderCategory.Venue, null, Faker.Address.StreetAddress(),
+            slug, Faker.Company.CompanyName(), category, null, Faker.Address.StreetAddress(),
             city.Id, null, cityHasDistricts: false, location ?? GeoCoordinate.Create(44.8125, 20.4612).Value,
             null, isClaimed: false, DateTime.UtcNow).Value;
     }
@@ -350,6 +475,34 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
                 booking_deposit_value = {depositValue},
                 booking_deposit_due_days = {depositDueDays},
                 booking_free_cancellation_days = {freeCancellationDays}
+            WHERE id = {id}
+            """);
+    }
+
+    // A complete, valid set by default, written past the domain rules; each test breaks one part of it
+    private async Task UpdateVenueDetailsAsync(
+        Guid id,
+        int? maxChildren = 30,
+        int? minAge = 3,
+        int? maxAge = 10,
+        string? foodService = "Included",
+        bool? hasSmokingArea = false)
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+        KidsPartyVenueDbContext context = scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+        await context.Database.ExecuteSqlAsync(
+            $"""
+            UPDATE providers
+            SET venue_max_children = {maxChildren},
+                venue_max_adults = {(int?)null},
+                venue_min_age = {minAge},
+                venue_max_age = {maxAge},
+                venue_outside_catering = {"Allowed"},
+                venue_outside_cake = {"NotAllowed"},
+                venue_food_service = {foodService},
+                venue_has_own_animator = {false},
+                venue_has_own_photographer = {false},
+                venue_has_smoking_area = {hasSmokingArea}
             WHERE id = {id}
             """);
     }

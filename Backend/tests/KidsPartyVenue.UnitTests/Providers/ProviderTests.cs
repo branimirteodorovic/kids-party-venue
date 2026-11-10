@@ -6,6 +6,7 @@ using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Localization;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
+using KidsPartyVenue.Domain.Venues;
 
 namespace KidsPartyVenue.UnitTests.Providers;
 
@@ -290,6 +291,69 @@ public sealed class ProviderTests
         // Assert
         act.Should().Throw<ArgumentNullException>();
     }
+
+    [Fact]
+    public void Create_ShouldLeaveVenueDetailsEmpty()
+    {
+        // Act
+        Result<Provider> result = Create();
+
+        // Assert
+        result.Value.VenueDetails.Should().BeNull();
+    }
+
+    [Fact]
+    public void ChangeVenueDetails_ShouldSetDetailsAndUpdatedAt_WhenProviderIsAVenue()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        VenueDetails details = CreateVenueDetails();
+        DateTime later = UtcNow.AddMinutes(5);
+
+        // Act
+        Result result = provider.ChangeVenueDetails(details, later);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.VenueDetails.Should().Be(details);
+        provider.UpdatedAtUtc.Should().Be(later);
+        provider.CreatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Theory]
+    [InlineData(ProviderCategory.Catering)]
+    [InlineData(ProviderCategory.Cakes)]
+    public void ChangeVenueDetails_ShouldFail_WhenProviderIsNotAVenue(ProviderCategory category)
+    {
+        // Arrange
+        Provider provider = Create(category: category).Value;
+
+        // Act
+        Result result = provider.ChangeVenueDetails(CreateVenueDetails(), UtcNow.AddMinutes(5));
+
+        // Assert
+        result.Error.Should().Be(ProviderErrors.VenueDetailsNotForCategory);
+        provider.VenueDetails.Should().BeNull();
+        provider.UpdatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Fact]
+    public void ChangeVenueDetails_ShouldThrow_WhenDetailsAreNull()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        Action act = () => provider.ChangeVenueDetails(null!, UtcNow);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    private static VenueDetails CreateVenueDetails() =>
+        VenueDetails.Create(
+            30, null, 3, 10, OutsideFoodRule.NotAllowed, OutsideFoodRule.Allowed, FoodService.ForPurchase,
+            hasOwnAnimator: true, hasOwnPhotographer: false, hasSmokingArea: false).Value;
 
     private static Result<Provider> Create(
         string? slug = "igraonica-zeka",
