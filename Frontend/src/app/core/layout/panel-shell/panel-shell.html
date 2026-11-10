@@ -1,0 +1,48 @@
+<div class="min-h-dvh desktop:flex">
+  <div
+    class="sticky top-0 hidden h-dvh w-66 flex-col border-r border-border bg-surface desktop:flex"
+  >
+    <app-logo />
+    <ul>
+      @for (item of navItems; track item.path) {
+        <li>
+          <a
+            class="flex min-h-12 items-center justify-center gap-2"
+            [routerLink]="item.path"
+            routerLinkActive="text-primary-700 bg-primary-50"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            ariaCurrentWhenActive="page"
+          >
+            <app-icon [name]="item.icon" />
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <main id="main" class="max-w-page flex-1 pb-24 desktop:pb-8">
+    <router-outlet />
+  </main>
+
+  <div
+    class="fixed inset-x-0 bottom-0 border-t bg-surface pb-[env(safe-area-inset-bottom)] desktop:hidden"
+  >
+    <div class="grid grid-cols-5">
+      @for (item of navItems; track item.path) {
+        <a
+          class="flex min-h-14 flex-col items-center justify-center"
+          [routerLink]="item.path"
+          routerLinkActive="text-primary-700"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          ariaCurrentWhenActive="page"
+        >
+          <app-icon [name]="item.icon" />
+          <span class="text-caption">
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    </div>
+  </div>
+</div>

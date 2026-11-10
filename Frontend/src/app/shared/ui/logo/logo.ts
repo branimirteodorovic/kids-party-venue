@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { booleanAttribute, Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'app-logo',
@@ -28,10 +28,16 @@ import { Component } from '@angular/core';
         stroke-linecap="round"
       />
     </svg>
-    <span class="font-heading text-h3 font-extrabold tracking-tight text-text">
+    <span class="font-heading text-h3 font-extrabold tracking-tight" [class]="labelClasses()">
       Slavljenik<span class="text-primary-600">.rs</span>
     </span>
   `,
   host: { class: 'inline-flex items-center gap-2' },
 })
-export class Logo {}
+export class Logo {
+  readonly darkBackground = input(false, { transform: booleanAttribute });
+
+  protected readonly labelClasses = computed(() =>
+    this.darkBackground() ? 'text-white' : 'text-text',
+  );
+}

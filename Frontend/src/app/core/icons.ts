@@ -29,6 +29,8 @@ import {
   LucideUsers,
   LucideX,
   provideLucideIcons,
+  LucideStore,
+  LucideEllipsis,
 } from '@lucide/angular';
 
 /** Every icon the app uses, registered by name ('calendar-days', 'map-pin', …). */
@@ -63,5 +65,7 @@ export function provideAppIcons() {
     LucideX,
     LucideEye,
     LucideBanknote,
+    LucideStore,
+    LucideEllipsis,
   );
 }

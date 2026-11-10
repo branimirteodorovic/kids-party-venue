@@ -49,6 +49,16 @@ export const routes: Routes = [
     title: 'Preuzmite profil',
     loadComponent: () => import('./features/auth/claim-page/claim-page').then((m) => m.ClaimPage),
   },
+  {
+    path: 'panel',
+    loadComponent: () => import('./core/layout/panel-shell/panel-shell').then((m) => m.PanelShell),
+    loadChildren: () => import('./features/panel/panel.routes').then((m) => m.PANEL_ROUTES),
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./core/layout/admin-shell/admin-shell').then((m) => m.AdminShell),
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
   ...devRoutes,
   {
     path: '',

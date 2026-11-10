@@ -1,0 +1,29 @@
+<div class="min-h-dvh desktop:flex">
+  <nav
+    aria-label="Glavna navigacija"
+    class="sticky top-0 flex gap-2 overflow-x-auto bg-ink p-4 text-white desktop:h-dvh desktop:w-66 desktop:flex-col"
+  >
+    <app-logo darkBackground />
+    <ul
+      class="flex shrink-0 items-center gap-2 whitespace-nowrap desktop:flex-col desktop:items-start"
+    >
+      @for (item of navItems; track item.path) {
+        <li>
+          <a
+            class="flex min-h-12 items-center px-2"
+            [routerLink]="item.path"
+            routerLinkActive="text-text bg-primary-50"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            ariaCurrentWhenActive="page"
+          >
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <main id="main" class="max-w-page flex-1 desktop:pb-8">
+    <router-outlet />
+  </main>
+</div>
