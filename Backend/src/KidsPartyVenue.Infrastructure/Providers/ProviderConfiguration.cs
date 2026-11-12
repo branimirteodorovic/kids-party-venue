@@ -108,6 +108,13 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
 
         builder.Ignore(p => p.IsClaimed);
 
+        // Part of the aggregate, so they always load with it and ChangeAmenities diffs against the real set
+        builder.HasMany(p => p.Amenities)
+            .WithOne()
+            .HasForeignKey(a => a.ProviderId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(p => p.Amenities).AutoInclude();
+
         builder.HasOne<City>()
             .WithMany()
             .HasForeignKey(p => p.CityId)

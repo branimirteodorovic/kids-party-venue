@@ -1532,6 +1532,25 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("KidsPartyVenue.Domain.Providers.ProviderAmenity", b =>
+                {
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("provider_id");
+
+                    b.Property<Guid>("AmenityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("amenity_id");
+
+                    b.HasKey("ProviderId", "AmenityId")
+                        .HasName("pk_provider_amenities");
+
+                    b.HasIndex("AmenityId")
+                        .HasDatabaseName("ix_provider_amenities_amenity_id");
+
+                    b.ToTable("provider_amenities", (string)null);
+                });
+
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3485,6 +3504,23 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                     b.Navigation("VenueDetails");
                 });
 
+            modelBuilder.Entity("KidsPartyVenue.Domain.Providers.ProviderAmenity", b =>
+                {
+                    b.HasOne("KidsPartyVenue.Domain.Amenities.Amenity", null)
+                        .WithMany()
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_amenities_amenities_amenity_id");
+
+                    b.HasOne("KidsPartyVenue.Domain.Providers.Provider", null)
+                        .WithMany("Amenities")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_amenities_providers_provider_id");
+                });
+
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
                 {
                     b.HasOne("KidsPartyVenue.Infrastructure.Identity.User", null)
@@ -3565,6 +3601,11 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
             modelBuilder.Entity("KidsPartyVenue.Domain.Cities.City", b =>
                 {
                     b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("KidsPartyVenue.Domain.Providers.Provider", b =>
+                {
+                    b.Navigation("Amenities");
                 });
 #pragma warning restore 612, 618
         }

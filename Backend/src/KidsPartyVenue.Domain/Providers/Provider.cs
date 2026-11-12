@@ -1,3 +1,4 @@
+using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
@@ -15,6 +16,8 @@ public sealed class Provider : Entity
     public const int NameMaxLength = 150;
     public const int AddressMaxLength = 200;
     public const int DescriptionMaxLength = 5000;
+
+    private readonly List<ProviderAmenity> _amenities = [];
 
     private Provider()
     {
@@ -48,6 +51,9 @@ public sealed class Provider : Entity
 
     /// <summary>Venues only; null until the venue sets them, and required before review.</summary>
     public VenueDetails? VenueDetails { get; private set; }
+
+    /// <summary>Venues only until P2.11; empty until the provider marks some.</summary>
+    public IReadOnlyCollection<ProviderAmenity> Amenities => _amenities;
 
     public ProviderStatus Status { get; private set; }
 
@@ -174,6 +180,31 @@ public sealed class Provider : Entity
 
         VenueDetails = details;
         UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>Replaces the set of amenities, keeping the ones that stay so their rows aren't deleted and inserted again.</summary>
+    public Result ChangeAmenities(IReadOnlyCollection<Amenity> amenities, DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(amenities);
+
+        if (Category != ProviderCategory.Venue)
+        {
+            return Result.Failure(ProviderErrors.AmenitiesNotForCategory);
+        }
+
+        HashSet<Guid> wanted = amenities.Select(a => a.Id).ToHashSet();
+        int removed = _amenities.RemoveAll(a => !wanted.Contains(a.AmenityId));
+
+        HashSet<Guid> kept = _amenities.Select(a => a.AmenityId).ToHashSet();
+        List<Guid> added = wanted.Where(id => !kept.Contains(id)).ToList();
+        _amenities.AddRange(added.Select(id => ProviderAmenity.Create(Id, id)));
+
+        if (removed > 0 || added.Count > 0)
+        {
+            UpdatedAtUtc = utcNow;
+        }
 
         return Result.Success();
     }

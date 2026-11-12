@@ -16,4 +16,5 @@ public static class ProviderErrors
     public static readonly Error DistrictRequired = Error.Validation("Providers.DistrictRequired", "A district is required in a city that has districts");
     public static readonly Error LocationOutsideSerbia = Error.Validation("Providers.LocationOutsideSerbia", "Location must be in Serbia");
     public static readonly Error VenueDetailsNotForCategory = Error.Validation("Providers.VenueDetailsNotForCategory", "Only venues have venue details");
+    public static readonly Error AmenitiesNotForCategory = Error.Validation("Providers.AmenitiesNotForCategory", "Only venues have amenities");
 }

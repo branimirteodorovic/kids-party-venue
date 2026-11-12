@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
@@ -17,6 +18,9 @@ public sealed class ProviderTests
     private static readonly GeoCoordinate Location = GeoCoordinate.Create(45.2389, 19.8441).Value;
     private static readonly PhoneNumber Phone = PhoneNumber.Create("064 123 4567").Value;
     private static readonly DateTime UtcNow = DateTime.UtcNow;
+    private static readonly Amenity Parking = CreateAmenity("parking");
+    private static readonly Amenity Trampoline = CreateAmenity("trampolina");
+    private static readonly Amenity BallPit = CreateAmenity("bazen-sa-lopticama");
 
     [Fact]
     public void Create_ShouldReturnDraft_WhenInputIsValid()
@@ -349,6 +353,127 @@ public sealed class ProviderTests
         // Assert
         act.Should().Throw<ArgumentNullException>();
     }
+
+    [Fact]
+    public void Create_ShouldLeaveAmenitiesEmpty()
+    {
+        // Act
+        Result<Provider> result = Create();
+
+        // Assert
+        result.Value.Amenities.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldSetAmenitiesAndUpdatedAt_WhenProviderIsAVenue()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        DateTime later = UtcNow.AddMinutes(5);
+
+        // Act
+        Result result = provider.ChangeAmenities([Parking, Trampoline], later);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.Amenities.Select(a => a.AmenityId).Should().BeEquivalentTo([Parking.Id, Trampoline.Id]);
+        provider.Amenities.Should().AllSatisfy(a => a.ProviderId.Should().Be(provider.Id));
+        provider.UpdatedAtUtc.Should().Be(later);
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldAddRemoveAndKeep_WhenSetChanges()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        provider.ChangeAmenities([Parking, Trampoline], UtcNow);
+        ProviderAmenity kept = provider.Amenities.Single(a => a.AmenityId == Parking.Id);
+
+        // Act
+        provider.ChangeAmenities([Parking, BallPit], UtcNow.AddMinutes(5));
+
+        // Assert
+        provider.Amenities.Select(a => a.AmenityId).Should().BeEquivalentTo([Parking.Id, BallPit.Id]);
+        provider.Amenities.Should().Contain(a => ReferenceEquals(a, kept));
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldLeaveUpdatedAt_WhenSetIsTheSame()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        DateTime first = UtcNow.AddMinutes(5);
+        provider.ChangeAmenities([Parking, Trampoline], first);
+
+        // Act
+        Result result = provider.ChangeAmenities([Trampoline, Parking], first.AddMinutes(5));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.UpdatedAtUtc.Should().Be(first);
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldClearAmenities_WhenCollectionIsEmpty()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        provider.ChangeAmenities([Parking], UtcNow);
+        DateTime later = UtcNow.AddMinutes(5);
+
+        // Act
+        provider.ChangeAmenities([], later);
+
+        // Assert
+        provider.Amenities.Should().BeEmpty();
+        provider.UpdatedAtUtc.Should().Be(later);
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldStoreOnce_WhenAmenityIsGivenTwice()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        provider.ChangeAmenities([Parking, Parking], UtcNow);
+
+        // Assert
+        provider.Amenities.Should().ContainSingle().Which.AmenityId.Should().Be(Parking.Id);
+    }
+
+    [Theory]
+    [InlineData(ProviderCategory.Catering)]
+    [InlineData(ProviderCategory.Cakes)]
+    public void ChangeAmenities_ShouldFail_WhenProviderIsNotAVenue(ProviderCategory category)
+    {
+        // Arrange
+        Provider provider = Create(category: category).Value;
+
+        // Act
+        Result result = provider.ChangeAmenities([Parking], UtcNow.AddMinutes(5));
+
+        // Assert
+        result.Error.Should().Be(ProviderErrors.AmenitiesNotForCategory);
+        provider.Amenities.Should().BeEmpty();
+        provider.UpdatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Fact]
+    public void ChangeAmenities_ShouldThrow_WhenAmenitiesAreNull()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        Action act = () => provider.ChangeAmenities(null!, UtcNow);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    private static Amenity CreateAmenity(string slug) =>
+        Amenity.Create(slug, LocalizedText.Create(slug).Value, 1).Value;
 
     private static VenueDetails CreateVenueDetails() =>
         VenueDetails.Create(

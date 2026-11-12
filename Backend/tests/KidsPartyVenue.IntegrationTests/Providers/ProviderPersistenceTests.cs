@@ -3,9 +3,11 @@ using AwesomeAssertions;
 using Dapper;
 using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
+using KidsPartyVenue.Domain.Localization;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
 using KidsPartyVenue.Domain.Venues;
@@ -421,6 +423,132 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         error.ConstraintName.Should().Be("ck_providers_venue_details_category");
     }
 
+    [Fact]
+    public async Task Amenities_ShouldLoadWithProvider_WhenTheyAreSet()
+    {
+        // Arrange
+        IReadOnlyList<Amenity> amenities = await GetSeededAmenitiesAsync(2);
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities(amenities, DateTime.UtcNow);
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert: GetByIdAsync in a new scope, without asking for the amenities
+        using IServiceScope scope = _factory.Services.CreateScope();
+        Provider saved = (await scope.ServiceProvider.GetRequiredService<IProviderRepository>()
+            .GetByIdAsync(provider.Id, CancellationToken.None))!;
+        saved.Amenities.Select(a => a.AmenityId).Should().BeEquivalentTo(amenities.Select(a => a.Id));
+    }
+
+    [Fact]
+    public async Task ChangeAmenities_ShouldSaveOnlyChangedRows_WhenProviderIsLoadedFromDatabase()
+    {
+        // Arrange
+        IReadOnlyList<Amenity> amenities = await GetSeededAmenitiesAsync(3);
+        Amenity kept = amenities[0];
+        Amenity removed = amenities[1];
+        Amenity added = amenities[2];
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities([kept, removed], DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act: load tracked in a new scope and replace the set, as the 1.9 command will
+        using (IServiceScope scope = _factory.Services.CreateScope())
+        {
+            Provider loaded = (await scope.ServiceProvider.GetRequiredService<IProviderRepository>()
+                .GetByIdAsync(provider.Id, CancellationToken.None))!;
+            loaded.ChangeAmenities([kept, added], DateTime.UtcNow);
+
+            KidsPartyVenueDbContext context = scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+            IEnumerable<EntityState> states = context.ChangeTracker.Entries<ProviderAmenity>()
+                .Where(e => e.State != EntityState.Unchanged)
+                .Select(e => e.State);
+            states.Should().BeEquivalentTo([EntityState.Added, EntityState.Deleted]);
+
+            await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync();
+        }
+
+        // Assert
+        List<Guid> saved = await GetAmenityIdsAsync(provider.Id);
+        saved.Should().BeEquivalentTo([kept.Id, added.Id]);
+    }
+
+    [Fact]
+    public async Task Amenities_ShouldBeRejected_WhenAmenityDoesNotExist()
+    {
+        // Arrange
+        Amenity unknown = Amenity.Create("nepostojeca", LocalizedText.Create("Nepostojeća").Value, 99).Value;
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities([unknown], DateTime.UtcNow);
+
+        // Act
+        Func<Task> act = () => SaveAsync(provider);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, ForeignKeyViolation);
+        error.ConstraintName.Should().Be("fk_provider_amenities_amenities_amenity_id");
+    }
+
+    [Fact]
+    public async Task Amenities_ShouldBeRejected_WhenRowIsDuplicated()
+    {
+        // Arrange
+        Amenity amenity = (await GetSeededAmenitiesAsync(1))[0];
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities([amenity], DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act: past the domain, which never adds the same amenity twice
+        Func<Task> act = async () =>
+        {
+            using IServiceScope scope = _factory.Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>().Database.ExecuteSqlAsync(
+                $"INSERT INTO provider_amenities (provider_id, amenity_id) VALUES ({provider.Id}, {amenity.Id})");
+        };
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, UniqueViolation);
+        error.ConstraintName.Should().Be("pk_provider_amenities");
+    }
+
+    [Fact]
+    public async Task DeleteAmenity_ShouldFail_WhenAProviderUsesIt()
+    {
+        // Arrange
+        Amenity amenity = (await GetSeededAmenitiesAsync(1))[0];
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities([amenity], DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => DeleteInRolledBackTransactionAsync("DELETE FROM amenities WHERE id = {0}", amenity.Id);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, RestrictViolation);
+        error.ConstraintName.Should().Be("fk_provider_amenities_amenities_amenity_id");
+    }
+
+    [Fact]
+    public async Task DeleteProvider_ShouldDeleteItsAmenities()
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.ChangeAmenities(await GetSeededAmenitiesAsync(2), DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act
+        using (IServiceScope scope = _factory.Services.CreateScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>().Database.ExecuteSqlAsync(
+                $"DELETE FROM providers WHERE id = {provider.Id}");
+        }
+
+        // Assert
+        List<Guid> left = await GetAmenityIdsAsync(provider.Id);
+        left.Should().BeEmpty();
+    }
+
     // timestamptz keeps microseconds, so a time with finer ticks wouldn't come back equal
     private static DateTime UtcNowInMicroseconds()
     {
@@ -437,6 +565,15 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
 
         return await DbContext.Districts.AsNoTracking().FirstAsync(d => d.CityId == noviSad.Id);
     }
+
+    private async Task<IReadOnlyList<Amenity>> GetSeededAmenitiesAsync(int count) =>
+        await DbContext.Amenities.AsNoTracking().OrderBy(a => a.SortOrder).Take(count).ToListAsync();
+
+    private Task<List<Guid>> GetAmenityIdsAsync(Guid providerId) =>
+        DbContext.Set<ProviderAmenity>().AsNoTracking()
+            .Where(a => a.ProviderId == providerId)
+            .Select(a => a.AmenityId)
+            .ToListAsync();
 
     private async Task<Provider> CreateInCityWithoutDistrictsAsync(
         string slug, GeoCoordinate? location = null, ProviderCategory category = ProviderCategory.Venue)
