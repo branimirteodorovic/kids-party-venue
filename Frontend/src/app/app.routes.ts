@@ -22,7 +22,11 @@ function categoryRoutes(path: string, category: ProviderCategory, title: string)
       { path: ':city', title, loadComponent: searchPage },
       { path: ':city/kvart/:district', title, loadComponent: searchPage },
       { path: ':city/:slug', title, loadComponent: providerProfilePage },
-      { path: ':city/:slug/upit', title: 'Pošaljite upit', loadComponent: inquiryPage },
+      {
+        path: ':city/:slug/upit',
+        title: $localize`:@@inquiry.pageTitle:Pošaljite upit`,
+        loadComponent: inquiryPage,
+      },
     ],
   };
 }
@@ -41,12 +45,12 @@ const devRoutes: Routes = isDevMode()
 export const routes: Routes = [
   {
     path: 'prijava',
-    title: 'Prijava',
+    title: $localize`:@@login.pageTitle:Prijava`,
     loadComponent: () => import('./features/auth/login-page/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'preuzmi-profil',
-    title: 'Preuzmite profil',
+    title: $localize`:@@claim.pageTitle:Preuzmite profil`,
     loadComponent: () => import('./features/auth/claim-page/claim-page').then((m) => m.ClaimPage),
   },
   {
@@ -67,14 +71,14 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        title: 'Dečiji rođendani',
+        title: $localize`:@@home.pageTitle:Dečiji rođendani`,
         loadComponent: () =>
           import('./features/public/home/home-page/home-page').then((m) => m.HomePage),
       },
-      categoryRoutes('rodjendaonice', 'Venue', 'Rođendaonice'),
+      categoryRoutes('rodjendaonice', 'Venue', $localize`:@@category.venue:Rođendaonice`),
       {
         path: 'upit/:token',
-        title: 'Vaš upit',
+        title: $localize`:@@tracking.pageTitle:Vaš upit`,
         loadComponent: () =>
           import('./features/public/tracking/tracking-page/tracking-page').then(
             (m) => m.TrackingPage,
@@ -82,7 +86,7 @@ export const routes: Routes = [
       },
       {
         path: 'moje-proslave',
-        title: 'Moje proslave',
+        title: $localize`:@@myParties.pageTitle:Moje proslave`,
         loadComponent: () =>
           import('./features/public/my-parties/my-parties-page/my-parties-page').then(
             (m) => m.MyPartiesPage,
@@ -90,7 +94,7 @@ export const routes: Routes = [
       },
       {
         path: 'za-ponudjace',
-        title: 'Za ponuđače',
+        title: $localize`:@@forProviders.pageTitle:Za ponuđače`,
         loadComponent: () =>
           import('./features/public/for-providers/for-providers-page/for-providers-page').then(
             (m) => m.ForProvidersPage,
@@ -98,7 +102,7 @@ export const routes: Routes = [
       },
       {
         path: '**',
-        title: 'Stranica nije pronađena',
+        title: $localize`:@@notFound.pageTitle:Stranica nije pronađena`,
         loadComponent: () =>
           import('./features/not-found-page/not-found-page').then((m) => m.NotFoundPage),
       },

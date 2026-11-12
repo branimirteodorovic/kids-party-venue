@@ -10,7 +10,10 @@
     "serve:ssr:kids-party-venue": "node dist/kids-party-venue/server/server.mjs",
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{ts,html,css,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,css,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,json}\"",
+    "start:en": "ng serve --configuration=en",
+    "start:ru": "ng serve --configuration=ru",
+    "i18n": "ng extract-i18n --format=json --output-path=src/locale && node scripts/i18n-sync.mjs"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -35,6 +38,7 @@
     "@angular/build": "^22.2.3",
     "@angular/cli": "^22.2.3",
     "@angular/compiler-cli": "^22.2.0",
+    "@angular/localize": "^22.2.3",
     "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.1",
     "@types/node": "^22.12.0",

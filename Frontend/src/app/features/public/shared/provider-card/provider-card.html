@@ -2,11 +2,14 @@
   class="relative w-full overflow-hidden rounded-2xl border border-border has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent-500"
 >
   @if (data().isSponsored) {
-    <app-badge class="absolute top-3 left-3" tone="accent"> Sponzorisano </app-badge>
+    <app-badge class="absolute top-3 left-3" tone="accent" i18n="@@providerCard.sponsored"
+      >Sponzorisano</app-badge
+    >
   }
   <img
     [src]="data().photoUrl"
     alt="Fotografija {{ data().name }}"
+    i18n-alt="@@providerCard.photoAlt"
     class="aspect-4/3 w-full object-cover"
   />
   <div class="p-4">
@@ -22,11 +25,15 @@
       </div>
       <div class="flex space-x-1">
         <app-icon name="users" />
-        <span class="text-h6">Do {{ data().kidsCapacity }} dece</span>
+        <span class="text-h6" i18n="@@providerCard.kidsCapacity">{data().kidsCapacity, plural,
+          one {Do # deteta}
+          few {Do # deteta}
+          other {Do # dece}
+        }</span>
       </div>
       <div class="flex space-x-1">
         <app-icon name="banknote" />
-        <span class="text-h6">od {{ data().fromPrice | din }} po detetu</span>
+        <span class="text-h6" i18n="@@providerCard.pricePerChild">od {{ data().fromPrice | din }} po detetu</span>
       </div>
       <div>
         @if (freeSlots().length > 0) {
@@ -40,7 +47,9 @@
             }
           </ul>
         } @else {
-          <span class="text-text-muted">Nema slobodnih termina u narednih 14 dana</span>
+          <span class="text-text-muted" i18n="@@providerCard.noFreeSlots"
+            >Nema slobodnih termina u narednih 14 dana</span
+          >
         }
       </div>
     </div>
@@ -50,6 +59,7 @@
     type="button"
     (click)="onFavoriteToggle()"
     [aria-pressed]="isFavorite()"
+    i18n-aria-label="@@providerCard.favoriteButton"
     aria-label="Sačuvaj u omiljene"
   >
     <app-icon name="heart" [filled]="isFavorite()"></app-icon>

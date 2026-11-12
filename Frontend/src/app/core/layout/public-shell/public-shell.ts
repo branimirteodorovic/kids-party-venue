@@ -14,8 +14,8 @@ export class PublicShell {
   protected readonly menuOpen = signal(false);
 
   protected readonly links = [
-    { path: '/rodjendaonice', label: 'Rođendaonice' },
-    { path: '/moje-proslave', label: 'Moje proslave' },
+    { path: '/rodjendaonice', label: $localize`:@@route.partyVenues:Rođendaonice` },
+    { path: '/moje-proslave', label: $localize`:@@route.myParties:Moje proslave` },
   ];
 
   protected readonly brandName = BRAND_NAME;
