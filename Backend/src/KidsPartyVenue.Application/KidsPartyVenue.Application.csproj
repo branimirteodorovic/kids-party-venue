@@ -18,4 +18,8 @@
     <ProjectReference Include="..\KidsPartyVenue.Domain\KidsPartyVenue.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="KidsPartyVenue.UnitTests" />
+  </ItemGroup>
+
 </Project>

@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\KidsPartyVenue.Application\KidsPartyVenue.Application.csproj" />
     <ProjectReference Include="..\..\src\KidsPartyVenue.Domain\KidsPartyVenue.Domain.csproj" />
   </ItemGroup>
 
