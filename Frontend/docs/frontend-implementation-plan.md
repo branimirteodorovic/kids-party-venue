@@ -786,7 +786,19 @@ A change is done when:
 profile editor, opened city by city); multi-provider party plan; guest-count changes; comparison;
 reviews and ratings; city, district and category landing pages; embeddable provider calendar;
 provider statistics; date-range search; Google sign-in; "my city isn't listed yet" wishes for the
-admin's launch decisions; optional English and Russian versions of provider-written texts.
+admin's launch decisions; optional English and Russian versions of provider-written texts; provider
+offers.
+
+**Provider offers (backend P2.15, paid plans):** last-minute offers on open slots first, special
+offers (on a package, or weekdays and times in a date range) later.
+
+- Panel: create a last-minute offer from selected open slots in the calendar; a dashboard prompt
+  for free slots in the coming days; special offers next to the packages in the profile editor.
+- Public: an offer badge and discounted price on `app-provider-card`, slot chips and the profile
+  packages; the discount in the quote total and on the inquiry tracking page; an offers-only search
+  filter; a "last minute this weekend" strip on the home page for the selected city; offers in the
+  profile's `Offer` structured data.
+- Admin: a list of active offers, with removal.
 
 **Phase 3:** planning assistant; digital invitations and RSVP; card payments for subscriptions;
 parent accounts and birthday reminders; provider suggestions ("Predlozi"); additional categories
