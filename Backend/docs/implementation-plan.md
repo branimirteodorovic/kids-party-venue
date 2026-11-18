@@ -18,6 +18,7 @@ The roadmap for the KidsPartyVenue backend, organized into milestones and small,
 | Market | Serbia, city by city; venues first | Every city and municipality is seeded, and all are hidden. The admin opens a category in a city once enough providers there are published. Venues come first; catering and cakes follow after the MVP (P2.11). |
 | Public visibility | Published, and the provider's category is open in its city | One shared SQL condition used by every public query. Closing a city again hides it and its profiles from parents; existing inquiries and bookings carry on. |
 | Languages | Serbian (Latin, default), English and Russian | The frontend translates the interface. The API returns lookup names (cities, districts, amenities) in the request language (`Accept-Language`) and sends each notification in its recipient's language. Texts written by providers are shown as written; invoices are Serbian only. |
+| Extensibility | Get keys and cardinalities right now; add category code only when the category comes | Later categories (catering, cakes, outdoor venues, equipment rental) should need only additive migrations: a new enum value (stored as a string), nullable columns or new tables. A provider has exactly one category; an owner with several runs several profiles through membership (1.10). Category-specific facts live in typed details per category (like `VenueDetails`), never in generic attributes or JSON. Offerings (1.15) hold only category-neutral fields, and pricing models are a string enum so new ones (per day, per unit) are additive. Slots (4.3) belong to a bookable resource, with one created per venue, so a provider with several identical items can be booked in parallel later. A slot has a start and an end, so full-day bookings fit. Inquiries (5.3) hold lines (offering, extras, quantity, price snapshot) rather than a single offering. |
 | AI features | Anthropic API behind Application interfaces | Model output is untrusted input: structured, validated like a request, and mapped to lookup data on the server. The model never gets database access or provider data, every AI feature falls back to the non-AI path, and prompt or model changes are checked against an eval set first. |
 
 ## Delivery conventions
@@ -236,8 +237,9 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - A pure domain service that turns rules into UTC slot instants per local date, with correct DST handling. `OnlyOpenBefore` takes precedence over `Regular` on the dates it covers.
 
 ### 4.3 Slots
-- One row per bookable slot, with the statuses Open, Held, Booked and Blocked.
-- A unique start per provider, a `btree_gist` exclusion constraint against overlaps, and `xmin` optimistic concurrency.
+- One row per bookable slot, with a start, an end and the statuses Open, Held, Booked and Blocked.
+- Slots belong to a bookable resource of the provider; each venue gets one resource automatically, and the API doesn't expose resources until a category needs several (see Extensibility in Key decisions).
+- A unique start per resource, a `btree_gist` exclusion constraint against overlaps per resource, and `xmin` optimistic concurrency.
 
 ### 4.4 Slot regeneration
 - Idempotent regeneration on rule changes and nightly for the next 9 months.
@@ -270,7 +272,7 @@ Most backend code is written by an AI coding agent (Claude Code). The owner sets
 - A public quote endpoint.
 
 ### 5.3 Create inquiry
-- Anonymous inquiries to publicly visible providers with a verified phone, with capacity and age checks, a policy snapshot, a quoted price and the parent's language. Lead-time and daily-capacity checks come with the service categories (P2.11).
+- Anonymous inquiries to publicly visible providers with a verified phone, with capacity and age checks, a policy snapshot, the quoted price as lines (offering, extras, quantity and price snapshot) and the parent's language. Lead-time and daily-capacity checks come with the service categories (P2.11).
 
 ### 5.4 Inquiry tracking
 - Private tracking links for parents (hashed tokens), opening in the parent's language.
