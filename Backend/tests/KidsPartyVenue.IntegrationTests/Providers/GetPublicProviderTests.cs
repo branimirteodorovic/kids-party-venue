@@ -85,7 +85,7 @@ public sealed class GetPublicProviderTests(IntegrationTestWebAppFactory factory)
         // Arrange
         Guid providerId = await CreateProviderAsync();
         await SetStatusAsync(providerId, ProviderStatus.Published);
-        await DbContext.Database.ExecuteSqlAsync($"UPDATE providers SET suspended_at_utc = now() WHERE id = {providerId}");
+        await DbContext.Database.ExecuteSqlAsync($"UPDATE providers SET suspended_at_utc = now(), suspension_reason = 'Test' WHERE id = {providerId}");
 
         // Act
         HttpResponseMessage response = await GetPublicAsync(await GetSlugAsync(providerId));
@@ -314,7 +314,7 @@ public sealed class GetPublicProviderTests(IntegrationTestWebAppFactory factory)
         await ReadVersionAsync(await PutAsAdminAsync(providerId, "amenities", new AmenitiesRequest(amenityIds, version)));
     }
 
-    // Until 1.13 there's no way to publish through the API
+    // Set directly, so these tests stay about visibility; ProviderReviewWorkflowTests publishes through the API
     private async Task SetStatusAsync(Guid providerId, ProviderStatus status)
     {
         string value = status.ToString();

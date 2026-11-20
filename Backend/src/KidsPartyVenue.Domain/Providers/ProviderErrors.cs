@@ -23,4 +23,16 @@ public static class ProviderErrors
     public static readonly Error AlreadyMember = Error.Conflict("Providers.AlreadyMember", "The user is already a member of the provider");
     public static readonly Error MemberNotFound = Error.NotFound("Providers.MemberNotFound", "The user is not a member of the provider");
     public static readonly Error LastOwner = Error.Conflict("Providers.LastOwner", "The provider's only owner can't be removed");
+    public static readonly Error NotSubmittable = Error.Conflict("Providers.NotSubmittable", "Only a draft or a profile with requested changes can be submitted for review");
+    public static readonly Error BookingPolicyRequired = Error.Validation("Providers.BookingPolicyRequired", "The booking policy must be set before review");
+    public static readonly Error VenueDetailsRequired = Error.Validation("Providers.VenueDetailsRequired", "Venue details must be set before review");
+    public static readonly Error PhoneRequired = Error.Validation("Providers.PhoneRequired", "A phone number must be set before review");
+    public static readonly Error NotPendingReview = Error.Conflict("Providers.NotPendingReview", "The provider is not waiting for review");
+    public static readonly Error InReview = Error.Conflict("Providers.InReview", "The provider can't be changed while it is waiting for review");
+    public static readonly Error ReviewNotesRequired = Error.Validation("Providers.ReviewNotesRequired", "Review notes are required");
+    public static readonly Error ReviewNotesTooLong = Error.Validation("Providers.ReviewNotesTooLong", $"Review notes can't be longer than {Provider.ReviewNotesMaxLength} characters");
+    public static readonly Error SuspensionReasonRequired = Error.Validation("Providers.SuspensionReasonRequired", "A suspension reason is required");
+    public static readonly Error SuspensionReasonTooLong = Error.Validation("Providers.SuspensionReasonTooLong", $"Suspension reason can't be longer than {Provider.SuspensionReasonMaxLength} characters");
+    public static readonly Error AlreadySuspended = Error.Conflict("Providers.AlreadySuspended", "The provider is already suspended");
+    public static readonly Error NotSuspended = Error.Conflict("Providers.NotSuspended", "The provider is not suspended");
 }

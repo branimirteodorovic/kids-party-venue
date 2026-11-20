@@ -8,5 +8,6 @@ public sealed record MyProviderResponse
     public string Slug { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
     public ProviderStatus Status { get; init; }
+    public bool IsSuspended { get; init; }
     public ProviderMemberRole Role { get; init; }
 }

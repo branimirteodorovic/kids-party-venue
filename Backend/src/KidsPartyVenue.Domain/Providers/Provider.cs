@@ -16,6 +16,8 @@ public sealed class Provider : Entity
     public const int NameMaxLength = 150;
     public const int AddressMaxLength = 200;
     public const int DescriptionMaxLength = 5000;
+    public const int ReviewNotesMaxLength = 2000;
+    public const int SuspensionReasonMaxLength = 1000;
 
     private readonly List<ProviderAmenity> _amenities = [];
     private readonly List<ProviderMember> _members = [];
@@ -66,6 +68,18 @@ public sealed class Provider : Entity
 
     /// <summary>Set while an admin has suspended the profile. The review status stays as it was.</summary>
     public DateTime? SuspendedAtUtc { get; private set; }
+
+    /// <summary>Why the admin suspended the profile, shown to its owner; set exactly while it is suspended.</summary>
+    public string? SuspensionReason { get; private set; }
+
+    /// <summary>What the admin asked to change at the last review; cleared when the profile is approved.</summary>
+    public string? ReviewNotes { get; private set; }
+
+    /// <summary>When the profile was last submitted for review.</summary>
+    public DateTime? SubmittedAtUtc { get; private set; }
+
+    /// <summary>When an admin last approved the profile or asked for changes.</summary>
+    public DateTime? ReviewedAtUtc { get; private set; }
 
     public DateTime CreatedAtUtc { get; private set; }
 
@@ -142,6 +156,11 @@ public sealed class Provider : Entity
         PhoneNumber? phone,
         DateTime utcNow)
     {
+        if (Status == ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.InReview);
+        }
+
         Result<BasicInfo> basicInfo = CheckBasicInfo(name, description, address, cityId, district, cityHasDistricts, location);
         if (basicInfo.IsFailure)
         {
@@ -160,17 +179,29 @@ public sealed class Provider : Entity
         return Result.Success();
     }
 
-    public void ChangeBookingPolicy(BookingPolicy policy, DateTime utcNow)
+    public Result ChangeBookingPolicy(BookingPolicy policy, DateTime utcNow)
     {
         ArgumentNullException.ThrowIfNull(policy);
 
+        if (Status == ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.InReview);
+        }
+
         BookingPolicy = policy;
         UpdatedAtUtc = utcNow;
+
+        return Result.Success();
     }
 
     public Result ChangeVenueDetails(VenueDetails details, DateTime utcNow)
     {
         ArgumentNullException.ThrowIfNull(details);
+
+        if (Status == ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.InReview);
+        }
 
         if (Category != ProviderCategory.Venue)
         {
@@ -187,6 +218,11 @@ public sealed class Provider : Entity
     public Result ChangeAmenities(IReadOnlyCollection<Amenity> amenities, DateTime utcNow)
     {
         ArgumentNullException.ThrowIfNull(amenities);
+
+        if (Status == ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.InReview);
+        }
 
         if (Category != ProviderCategory.Venue)
         {
@@ -248,6 +284,122 @@ public sealed class Provider : Entity
         }
 
         _members.Remove(member);
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Sends a draft, or a profile the admin sent back, to review. It must have a booking policy, venue details (for a
+    /// venue) and a phone, checked in that order. The profile can't be edited until the admin decides.
+    /// </summary>
+    public Result SubmitForReview(DateTime utcNow)
+    {
+        if (Status is not (ProviderStatus.Draft or ProviderStatus.ChangesRequested))
+        {
+            return Result.Failure(ProviderErrors.NotSubmittable);
+        }
+
+        if (BookingPolicy is null)
+        {
+            return Result.Failure(ProviderErrors.BookingPolicyRequired);
+        }
+
+        if (Category == ProviderCategory.Venue && VenueDetails is null)
+        {
+            return Result.Failure(ProviderErrors.VenueDetailsRequired);
+        }
+
+        if (Phone is null)
+        {
+            return Result.Failure(ProviderErrors.PhoneRequired);
+        }
+
+        Status = ProviderStatus.PendingReview;
+        SubmittedAtUtc = utcNow;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>Publishes a profile waiting for review. Parents see it once its category is open in its city.</summary>
+    public Result Approve(DateTime utcNow)
+    {
+        if (Status != ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.NotPendingReview);
+        }
+
+        Status = ProviderStatus.Published;
+        ReviewNotes = null;
+        ReviewedAtUtc = utcNow;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>Sends a profile waiting for review back to its owner with notes on what to change.</summary>
+    public Result RequestChanges(string notes, DateTime utcNow)
+    {
+        if (Status != ProviderStatus.PendingReview)
+        {
+            return Result.Failure(ProviderErrors.NotPendingReview);
+        }
+
+        string trimmed = notes?.Trim() ?? string.Empty;
+        if (trimmed.Length == 0)
+        {
+            return Result.Failure(ProviderErrors.ReviewNotesRequired);
+        }
+
+        if (trimmed.Length > ReviewNotesMaxLength)
+        {
+            return Result.Failure(ProviderErrors.ReviewNotesTooLong);
+        }
+
+        Status = ProviderStatus.ChangesRequested;
+        ReviewNotes = trimmed;
+        ReviewedAtUtc = utcNow;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>Hides the profile from parents, keeping its review status, so unsuspending restores it.</summary>
+    public Result Suspend(string reason, DateTime utcNow)
+    {
+        if (SuspendedAtUtc is not null)
+        {
+            return Result.Failure(ProviderErrors.AlreadySuspended);
+        }
+
+        string trimmed = reason?.Trim() ?? string.Empty;
+        if (trimmed.Length == 0)
+        {
+            return Result.Failure(ProviderErrors.SuspensionReasonRequired);
+        }
+
+        if (trimmed.Length > SuspensionReasonMaxLength)
+        {
+            return Result.Failure(ProviderErrors.SuspensionReasonTooLong);
+        }
+
+        SuspendedAtUtc = utcNow;
+        SuspensionReason = trimmed;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    public Result Unsuspend(DateTime utcNow)
+    {
+        if (SuspendedAtUtc is null)
+        {
+            return Result.Failure(ProviderErrors.NotSuspended);
+        }
+
+        SuspendedAtUtc = null;
+        SuspensionReason = null;
         UpdatedAtUtc = utcNow;
 
         return Result.Success();

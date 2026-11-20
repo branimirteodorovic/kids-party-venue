@@ -39,7 +39,11 @@ internal sealed class UpdateBookingPolicyCommandHandler(
             return Result.Failure<ProviderVersionResponse>(policyResult.Error);
         }
 
-        provider.ChangeBookingPolicy(policyResult.Value, dateTimeProvider.UtcNow);
+        Result result = provider.ChangeBookingPolicy(policyResult.Value, dateTimeProvider.UtcNow);
+        if (result.IsFailure)
+        {
+            return Result.Failure<ProviderVersionResponse>(result.Error);
+        }
 
         try
         {

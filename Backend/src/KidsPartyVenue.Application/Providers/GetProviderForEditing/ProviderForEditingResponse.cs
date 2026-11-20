@@ -18,6 +18,17 @@ public sealed record ProviderForEditingResponse
     public ProviderStatus Status { get; init; }
     public bool IsClaimed { get; init; }
 
+    /// <summary>What the admin asked to change at the last review; null once approved.</summary>
+    public string? ReviewNotes { get; init; }
+
+    public DateTime? SubmittedAtUtc { get; init; }
+    public DateTime? ReviewedAtUtc { get; init; }
+
+    /// <summary>Set while an admin has suspended the profile, together with the reason.</summary>
+    public DateTime? SuspendedAtUtc { get; init; }
+
+    public string? SuspensionReason { get; init; }
+
     /// <summary>Null until the provider sets its terms.</summary>
     public BookingPolicyResponse? BookingPolicy { get; init; }
 

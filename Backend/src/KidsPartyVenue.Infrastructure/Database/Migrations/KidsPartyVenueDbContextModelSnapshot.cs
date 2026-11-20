@@ -1480,6 +1480,15 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(16)")
                         .HasColumnName("phone");
 
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("review_notes");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at_utc");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1492,9 +1501,18 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
+                    b.Property<DateTime?>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at_utc");
+
                     b.Property<DateTime?>("SuspendedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("suspended_at_utc");
+
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("suspension_reason");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -1529,6 +1547,8 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("ck_providers_booking_deposit", "booking_deposit_type IS NULL\r\nOR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)\r\nOR (booking_deposit_type IN ('Percentage', 'FixedAmount')\r\n    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_providers_booking_policy_complete", "(booking_deposit_type IS NULL AND booking_deposit_value IS NULL\r\n    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)\r\nOR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_providers_suspension", "(suspended_at_utc IS NULL) = (suspension_reason IS NULL)");
 
                             t.HasCheckConstraint("ck_providers_venue_age_range", "venue_min_age <= venue_max_age");
 

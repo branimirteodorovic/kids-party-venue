@@ -28,6 +28,11 @@ internal sealed class GetProviderForEditingQueryHandler(IDbConnectionFactory dbC
             phone AS {nameof(ProviderRow.Phone)},
             status AS {nameof(ProviderRow.Status)},
             claimed_at_utc IS NOT NULL AS {nameof(ProviderRow.IsClaimed)},
+            review_notes AS {nameof(ProviderRow.ReviewNotes)},
+            submitted_at_utc AS {nameof(ProviderRow.SubmittedAtUtc)},
+            reviewed_at_utc AS {nameof(ProviderRow.ReviewedAtUtc)},
+            suspended_at_utc AS {nameof(ProviderRow.SuspendedAtUtc)},
+            suspension_reason AS {nameof(ProviderRow.SuspensionReason)},
             booking_deposit_type AS {nameof(ProviderRow.DepositType)},
             booking_deposit_value AS {nameof(ProviderRow.DepositValue)},
             booking_deposit_due_days AS {nameof(ProviderRow.DepositDueDays)},
@@ -82,6 +87,11 @@ internal sealed class GetProviderForEditingQueryHandler(IDbConnectionFactory dbC
             Phone = row.Phone,
             Status = Enum.Parse<ProviderStatus>(row.Status),
             IsClaimed = row.IsClaimed,
+            ReviewNotes = row.ReviewNotes,
+            SubmittedAtUtc = row.SubmittedAtUtc,
+            ReviewedAtUtc = row.ReviewedAtUtc,
+            SuspendedAtUtc = row.SuspendedAtUtc,
+            SuspensionReason = row.SuspensionReason,
             BookingPolicy = row.DepositType is null
                 ? null
                 : new BookingPolicyResponse(
@@ -123,6 +133,11 @@ internal sealed class GetProviderForEditingQueryHandler(IDbConnectionFactory dbC
         public string? Phone { get; init; }
         public string Status { get; init; } = string.Empty;
         public bool IsClaimed { get; init; }
+        public string? ReviewNotes { get; init; }
+        public DateTime? SubmittedAtUtc { get; init; }
+        public DateTime? ReviewedAtUtc { get; init; }
+        public DateTime? SuspendedAtUtc { get; init; }
+        public string? SuspensionReason { get; init; }
         public string? DepositType { get; init; }
         public decimal? DepositValue { get; init; }
         public int? DepositDueDays { get; init; }

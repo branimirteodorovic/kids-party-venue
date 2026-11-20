@@ -50,6 +50,9 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
             table.HasCheckConstraint(
                 "ck_providers_venue_details_category",
                 "category = 'Venue' OR venue_max_children IS NULL");
+            table.HasCheckConstraint(
+                "ck_providers_suspension",
+                "(suspended_at_utc IS NULL) = (suspension_reason IS NULL)");
         });
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
@@ -108,6 +111,8 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
         });
 
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.ReviewNotes).HasMaxLength(Provider.ReviewNotesMaxLength);
+        builder.Property(p => p.SuspensionReason).HasMaxLength(Provider.SuspensionReasonMaxLength);
 
         // Optimistic concurrency for profile edits (1.9)
         builder.Property<uint>(VersionProperty).IsRowVersion();

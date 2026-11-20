@@ -701,6 +701,61 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
             .Select(a => a.AmenityId)
             .ToListAsync();
 
+    [Fact]
+    public async Task ReviewFields_ShouldBeStored_WhenProfileIsReviewedAndSuspended()
+    {
+        // Arrange: the phone is required for review, so it is set through the basic info
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        DateTime utcNow = DateTime.UtcNow;
+        provider.ChangeBasicInfo(
+            provider.Name, null, provider.Address, provider.CityId, null, cityHasDistricts: false, provider.Location,
+            PhoneNumber.Create("063 123 4567").Value, utcNow).IsSuccess.Should().BeTrue();
+        provider.ChangeBookingPolicy(BookingPolicy.Create(DepositType.None, null, null, 7).Value, utcNow);
+        provider.ChangeVenueDetails(
+            VenueDetails.Create(30, null, 3, 10, OutsideFoodRule.NotAllowed, OutsideFoodRule.Allowed, FoodService.Included,
+                hasOwnAnimator: false, hasOwnPhotographer: false, hasSmokingArea: false).Value, utcNow);
+        provider.SubmitForReview(utcNow).IsSuccess.Should().BeTrue();
+        provider.RequestChanges("Dodajte opis", utcNow).IsSuccess.Should().BeTrue();
+        provider.Suspend("Provera", utcNow).IsSuccess.Should().BeTrue();
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == provider.Id);
+        saved.Status.Should().Be(ProviderStatus.ChangesRequested);
+        saved.ReviewNotes.Should().Be("Dodajte opis");
+        saved.SubmittedAtUtc.Should().BeCloseTo(utcNow, TimeSpan.FromMilliseconds(1));
+        saved.ReviewedAtUtc.Should().BeCloseTo(utcNow, TimeSpan.FromMilliseconds(1));
+        saved.SuspendedAtUtc.Should().BeCloseTo(utcNow, TimeSpan.FromMilliseconds(1));
+        saved.SuspensionReason.Should().Be("Provera");
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task Suspension_ShouldBeRejected_WhenTimeAndReasonDoNotMatch(bool setTime, bool setReason)
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(provider);
+        DateTime? suspendedAtUtc = setTime ? DateTime.UtcNow : null;
+        string? reason = setReason ? "Provera" : null;
+
+        // Act: written past the domain rules, so only the check constraint can stop it
+        Func<Task> act = async () =>
+        {
+            using IServiceScope scope = _factory.Services.CreateScope();
+            KidsPartyVenueDbContext context = scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>();
+            await context.Database.ExecuteSqlAsync(
+                $"UPDATE providers SET suspended_at_utc = {suspendedAtUtc}, suspension_reason = {reason} WHERE id = {provider.Id}");
+        };
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, CheckViolation);
+        error.ConstraintName.Should().Be("ck_providers_suspension");
+    }
+
     private async Task<Provider> CreateInCityWithoutDistrictsAsync(
         string slug, GeoCoordinate? location = null, ProviderCategory category = ProviderCategory.Venue)
     {

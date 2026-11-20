@@ -23,6 +23,7 @@ internal sealed class GetMyProvidersQueryHandler(
                 p.slug AS {nameof(ProviderRow.Slug)},
                 p.name AS {nameof(ProviderRow.Name)},
                 p.status AS {nameof(ProviderRow.Status)},
+                p.suspended_at_utc IS NOT NULL AS {nameof(ProviderRow.IsSuspended)},
                 m.role AS {nameof(ProviderRow.Role)}
             FROM provider_members m
             JOIN providers p ON p.id = m.provider_id
@@ -40,6 +41,7 @@ internal sealed class GetMyProvidersQueryHandler(
                 Slug = r.Slug,
                 Name = r.Name,
                 Status = Enum.Parse<ProviderStatus>(r.Status),
+                IsSuspended = r.IsSuspended,
                 Role = Enum.Parse<ProviderMemberRole>(r.Role)
             })
             .ToList();
@@ -51,6 +53,7 @@ internal sealed class GetMyProvidersQueryHandler(
         public string Slug { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
+        public bool IsSuspended { get; init; }
         public string Role { get; init; } = string.Empty;
     }
 }
