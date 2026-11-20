@@ -472,6 +472,115 @@ public sealed class ProviderTests
         act.Should().Throw<ArgumentNullException>();
     }
 
+    [Fact]
+    public void ChangeBasicInfo_ShouldReplaceBasicInfo_WhenInputIsValid()
+    {
+        // Arrange
+        Provider provider = Create(district: Liman, cityHasDistricts: true).Value;
+        Guid otherCityId = Guid.CreateVersion7();
+        GeoCoordinate otherLocation = GeoCoordinate.Create(44.8125, 20.4612).Value;
+        DateTime later = UtcNow.AddMinutes(5);
+
+        // Act
+        Result result = provider.ChangeBasicInfo(
+            "  Kockica ", " Igraonica ", " Knez Mihailova 5 ", otherCityId, null, cityHasDistricts: false,
+            otherLocation, Phone, later);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.Name.Should().Be("Kockica");
+        provider.Description.Should().Be("Igraonica");
+        provider.Address.Should().Be("Knez Mihailova 5");
+        provider.CityId.Should().Be(otherCityId);
+        provider.DistrictId.Should().BeNull();
+        provider.Location.Should().Be(otherLocation);
+        provider.Phone.Should().Be(Phone);
+        provider.UpdatedAtUtc.Should().Be(later);
+        provider.CreatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Fact]
+    public void ChangeBasicInfo_ShouldKeepSlugCategoryAndStatus_WhenNameChanges()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        Result result = provider.ChangeBasicInfo(
+            "Sasvim drugo ime", null, "Bulevar oslobođenja 1", CityId, null, cityHasDistricts: false, Location, null, UtcNow);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.Slug.Should().Be("igraonica-zeka");
+        provider.Category.Should().Be(ProviderCategory.Venue);
+        provider.Status.Should().Be(ProviderStatus.Draft);
+        provider.IsClaimed.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("   ")]
+    public void ChangeBasicInfo_ShouldClearDescriptionAndPhone_WhenTheyAreBlank(string? description)
+    {
+        // Arrange
+        Provider provider = Create(phone: Phone).Value;
+
+        // Act
+        Result result = provider.ChangeBasicInfo(
+            "Igraonica Zeka", description, "Bulevar oslobođenja 1", CityId, null, cityHasDistricts: false, Location, null, UtcNow);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        provider.Description.Should().BeNull();
+        provider.Phone.Should().BeNull();
+    }
+
+    public static TheoryData<string, string?, string, bool, double, Error> InvalidBasicInfo => new()
+    {
+        { "  ", null, "Adresa 1", false, 45.2389, ProviderErrors.NameRequired },
+        { new string('a', Provider.NameMaxLength + 1), null, "Adresa 1", false, 45.2389, ProviderErrors.NameTooLong },
+        { "Zeka", new string('a', Provider.DescriptionMaxLength + 1), "Adresa 1", false, 45.2389, ProviderErrors.DescriptionTooLong },
+        { "Zeka", null, " ", false, 45.2389, ProviderErrors.AddressRequired },
+        { "Zeka", null, new string('a', Provider.AddressMaxLength + 1), false, 45.2389, ProviderErrors.AddressTooLong },
+        { "Zeka", null, "Adresa 1", true, 45.2389, ProviderErrors.DistrictRequired },
+        { "Zeka", null, "Adresa 1", false, 47.4979, ProviderErrors.LocationOutsideSerbia }
+    };
+
+    [Theory]
+    [MemberData(nameof(InvalidBasicInfo))]
+    public void ChangeBasicInfo_ShouldFailAndChangeNothing_WhenInputIsInvalid(
+        string name, string? description, string address, bool cityHasDistricts, double latitude, Error expected)
+    {
+        // Arrange
+        Provider provider = Create().Value;
+        GeoCoordinate location = GeoCoordinate.Create(latitude, 19.8441).Value;
+
+        // Act
+        Result result = provider.ChangeBasicInfo(
+            name, description, address, CityId, null, cityHasDistricts, location, null, UtcNow.AddMinutes(5));
+
+        // Assert
+        result.Error.Should().Be(expected);
+        provider.Name.Should().Be("Igraonica Zeka");
+        provider.Address.Should().Be("Bulevar oslobođenja 1");
+        provider.UpdatedAtUtc.Should().Be(UtcNow);
+    }
+
+    [Fact]
+    public void ChangeBasicInfo_ShouldFail_WhenDistrictIsInAnotherCity()
+    {
+        // Arrange
+        Provider provider = Create().Value;
+
+        // Act
+        Result result = provider.ChangeBasicInfo(
+            "Igraonica Zeka", null, "Bulevar oslobođenja 1", Guid.CreateVersion7(), Liman, cityHasDistricts: true, Location, null, UtcNow);
+
+        // Assert
+        result.Error.Should().Be(ProviderErrors.DistrictNotInCity);
+        provider.CityId.Should().Be(CityId);
+    }
+
     private static Amenity CreateAmenity(string slug) =>
         Amenity.Create(slug, LocalizedText.Create(slug).Value, 1).Value;
 

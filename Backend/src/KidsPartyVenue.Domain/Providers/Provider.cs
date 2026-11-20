@@ -93,63 +93,25 @@ public sealed class Provider : Entity
             return Result.Failure<Provider>(ProviderErrors.ReservedSlug);
         }
 
-        string trimmedName = name?.Trim() ?? string.Empty;
-        if (trimmedName.Length == 0)
-        {
-            return Result.Failure<Provider>(ProviderErrors.NameRequired);
-        }
-
-        if (trimmedName.Length > NameMaxLength)
-        {
-            return Result.Failure<Provider>(ProviderErrors.NameTooLong);
-        }
-
         if (!Enum.IsDefined(category))
         {
             return Result.Failure<Provider>(ProviderErrors.UnknownCategory);
         }
 
-        string? trimmedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
-        if (trimmedDescription?.Length > DescriptionMaxLength)
+        Result<BasicInfo> basicInfo = CheckBasicInfo(name, description, address, cityId, district, cityHasDistricts, location);
+        if (basicInfo.IsFailure)
         {
-            return Result.Failure<Provider>(ProviderErrors.DescriptionTooLong);
-        }
-
-        string trimmedAddress = address?.Trim() ?? string.Empty;
-        if (trimmedAddress.Length == 0)
-        {
-            return Result.Failure<Provider>(ProviderErrors.AddressRequired);
-        }
-
-        if (trimmedAddress.Length > AddressMaxLength)
-        {
-            return Result.Failure<Provider>(ProviderErrors.AddressTooLong);
-        }
-
-        if (district is not null && district.CityId != cityId)
-        {
-            return Result.Failure<Provider>(ProviderErrors.DistrictNotInCity);
-        }
-
-        if (district is null && cityHasDistricts)
-        {
-            return Result.Failure<Provider>(ProviderErrors.DistrictRequired);
-        }
-
-        // GeoCoordinate accepts swapped latitude and longitude; the bounding box doesn't
-        if (!SerbiaBounds.Contains(location))
-        {
-            return Result.Failure<Provider>(ProviderErrors.LocationOutsideSerbia);
+            return Result.Failure<Provider>(basicInfo.Error);
         }
 
         return new Provider
         {
             Id = Guid.CreateVersion7(),
             Slug = slug,
-            Name = trimmedName,
+            Name = basicInfo.Value.Name,
             Category = category,
-            Description = trimmedDescription,
-            Address = trimmedAddress,
+            Description = basicInfo.Value.Description,
+            Address = basicInfo.Value.Address,
             CityId = cityId,
             DistrictId = district?.Id,
             Location = location,
@@ -159,6 +121,39 @@ public sealed class Provider : Entity
             CreatedAtUtc = utcNow,
             UpdatedAtUtc = utcNow
         };
+    }
+
+    /// <summary>
+    /// Replaces the name, description and place, with the same checks as <see cref="Create"/>. The slug stays as it
+    /// was (1.4), even when the name or the city changes.
+    /// </summary>
+    public Result ChangeBasicInfo(
+        string name,
+        string? description,
+        string address,
+        Guid cityId,
+        District? district,
+        bool cityHasDistricts,
+        GeoCoordinate location,
+        PhoneNumber? phone,
+        DateTime utcNow)
+    {
+        Result<BasicInfo> basicInfo = CheckBasicInfo(name, description, address, cityId, district, cityHasDistricts, location);
+        if (basicInfo.IsFailure)
+        {
+            return Result.Failure(basicInfo.Error);
+        }
+
+        Name = basicInfo.Value.Name;
+        Description = basicInfo.Value.Description;
+        Address = basicInfo.Value.Address;
+        CityId = cityId;
+        DistrictId = district?.Id;
+        Location = location;
+        Phone = phone;
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
     }
 
     public void ChangeBookingPolicy(BookingPolicy policy, DateTime utcNow)
@@ -208,4 +203,62 @@ public sealed class Provider : Entity
 
         return Result.Success();
     }
+
+    private static Result<BasicInfo> CheckBasicInfo(
+        string name,
+        string? description,
+        string address,
+        Guid cityId,
+        District? district,
+        bool cityHasDistricts,
+        GeoCoordinate location)
+    {
+        string trimmedName = name?.Trim() ?? string.Empty;
+        if (trimmedName.Length == 0)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.NameRequired);
+        }
+
+        if (trimmedName.Length > NameMaxLength)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.NameTooLong);
+        }
+
+        string? trimmedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        if (trimmedDescription?.Length > DescriptionMaxLength)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.DescriptionTooLong);
+        }
+
+        string trimmedAddress = address?.Trim() ?? string.Empty;
+        if (trimmedAddress.Length == 0)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.AddressRequired);
+        }
+
+        if (trimmedAddress.Length > AddressMaxLength)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.AddressTooLong);
+        }
+
+        if (district is not null && district.CityId != cityId)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.DistrictNotInCity);
+        }
+
+        if (district is null && cityHasDistricts)
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.DistrictRequired);
+        }
+
+        // GeoCoordinate accepts swapped latitude and longitude; the bounding box doesn't
+        if (!SerbiaBounds.Contains(location))
+        {
+            return Result.Failure<BasicInfo>(ProviderErrors.LocationOutsideSerbia);
+        }
+
+        return new BasicInfo(trimmedName, trimmedDescription, trimmedAddress);
+    }
+
+    private sealed record BasicInfo(string Name, string? Description, string Address);
 }

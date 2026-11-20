@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Dapper;
 using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Application.Exceptions;
 using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.BookingPolicies;
 using KidsPartyVenue.Domain.Cities;
@@ -547,6 +548,37 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         // Assert
         List<Guid> left = await GetAmenityIdsAsync(provider.Id);
         left.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SaveChanges_ShouldThrowConcurrencyConflict_WhenRowChangedAfterLoad()
+    {
+        // Arrange: one scope loads the provider, another changes the row before the first one saves
+        Provider created = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        await SaveAsync(created);
+
+        using IServiceScope editor = _factory.Services.CreateScope();
+        IProviderRepository repository = editor.ServiceProvider.GetRequiredService<IProviderRepository>();
+        Provider provider = (await repository.GetByIdAsync(created.Id, CancellationToken.None))!;
+        uint loadedVersion = repository.GetVersion(provider);
+
+        using (IServiceScope other = _factory.Services.CreateScope())
+        {
+            await other.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>().Database.ExecuteSqlAsync(
+                $"UPDATE providers SET name = 'Changed elsewhere' WHERE id = {created.Id}");
+        }
+
+        provider.ChangeBookingPolicy(BookingPolicy.Create(DepositType.None, null, null, 7).Value, DateTime.UtcNow);
+
+        // Act
+        Func<Task> act = () => editor.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ConcurrencyConflictException>();
+        Provider saved = await DbContext.Providers.AsNoTracking().SingleAsync(p => p.Id == created.Id);
+        saved.Name.Should().Be("Changed elsewhere");
+        saved.BookingPolicy.Should().BeNull();
+        loadedVersion.Should().NotBe(0u);
     }
 
     // timestamptz keeps microseconds, so a time with finer ticks wouldn't come back equal

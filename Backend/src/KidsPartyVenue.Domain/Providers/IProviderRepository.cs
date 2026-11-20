@@ -9,5 +9,11 @@ public interface IProviderRepository
     /// </summary>
     Task<IReadOnlyList<string>> GetSlugsWithBaseAsync(string baseSlug, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The row version of a loaded provider, which the editor sends back so a change made in
+    /// the meantime isn't overwritten. Saving a provider whose row changed since it was loaded fails as well.
+    /// </summary>
+    uint GetVersion(Provider provider);
+
     void Insert(Provider provider);
 }

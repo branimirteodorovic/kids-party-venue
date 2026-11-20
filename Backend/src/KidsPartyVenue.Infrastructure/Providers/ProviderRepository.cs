@@ -15,5 +15,8 @@ internal sealed class ProviderRepository(KidsPartyVenueDbContext context) : IPro
             .Select(p => p.Slug)
             .ToListAsync(cancellationToken);
 
+    public uint GetVersion(Provider provider) =>
+        context.Entry(provider).Property<uint>(ProviderConfiguration.VersionProperty).CurrentValue;
+
     public void Insert(Provider provider) => context.Providers.Add(provider);
 }

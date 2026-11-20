@@ -6,9 +6,11 @@ using KidsPartyVenue.Application.Authorization;
 using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Data;
+using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Providers;
 using KidsPartyVenue.Domain.Users;
+using KidsPartyVenue.Infrastructure.Amenities;
 using KidsPartyVenue.Infrastructure.Authentication;
 using KidsPartyVenue.Infrastructure.Authorization;
 using KidsPartyVenue.Infrastructure.BackgroundJobs;
@@ -64,6 +66,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IDistrictRepository, DistrictRepository>();
         services.AddScoped<IProviderRepository, ProviderRepository>();
+        services.AddScoped<IAmenityRepository, AmenityRepository>();
 
         SqlMapper.AddTypeHandler(new GenericArrayHandler<string>());
 

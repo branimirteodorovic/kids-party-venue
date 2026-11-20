@@ -12,6 +12,9 @@ namespace KidsPartyVenue.Infrastructure.Providers;
 
 internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
 {
+    /// <summary>A shadow property mapped to Postgres <c>xmin</c>, so Domain doesn't carry a persistence detail.</summary>
+    internal const string VersionProperty = "Version";
+
     public void Configure(EntityTypeBuilder<Provider> builder)
     {
         builder.ToTable("providers", table =>
@@ -105,6 +108,9 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
         });
 
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
+
+        // Optimistic concurrency for profile edits (1.9)
+        builder.Property<uint>(VersionProperty).IsRowVersion();
 
         builder.Ignore(p => p.IsClaimed);
 
