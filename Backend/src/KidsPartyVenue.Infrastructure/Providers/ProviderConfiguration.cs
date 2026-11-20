@@ -121,6 +121,13 @@ internal sealed class ProviderConfiguration : IEntityTypeConfiguration<Provider>
             .OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(p => p.Amenities).AutoInclude();
 
+        // Part of the aggregate too, so last-owner protection always checks the real set
+        builder.HasMany(p => p.Members)
+            .WithOne()
+            .HasForeignKey(m => m.ProviderId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(p => p.Members).AutoInclude();
+
         builder.HasOne<City>()
             .WithMany()
             .HasForeignKey(p => p.CityId)

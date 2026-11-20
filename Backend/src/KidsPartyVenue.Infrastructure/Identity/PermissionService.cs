@@ -1,15 +1,18 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using KidsPartyVenue.Application.Authorization;
+using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Data;
 using KidsPartyVenue.Domain;
+using KidsPartyVenue.Domain.Providers;
 using KidsPartyVenue.Domain.Users;
 using Microsoft.Extensions.Logging;
-using System.Data.Common;
 
 namespace KidsPartyVenue.Infrastructure.Identity;
 
 internal sealed class PermissionService(
     IDbConnectionFactory dbConnectionFactory,
+    ICacheService cacheService,
     ILogger<PermissionService> logger) : IPermissionService
 {
     public async Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId, CancellationToken cancellationToken)
@@ -20,10 +23,39 @@ internal sealed class PermissionService(
             return Result.Failure<PermissionsResponse>(UserErrors.IdentityIdMalformed);
         }
 
+        PermissionsResponse? permissions = await cacheService.GetOrCreateAsync(
+            ProviderMembershipCache.PermissionsKey(id),
+            async token => await ReadPermissionsAsync(id, token),
+            ProviderMembershipCache.Expiration,
+            [ProviderMembershipCache.UserTag(id)],
+            cancellationToken);
+
+        return permissions is null
+            ? Result.Failure<PermissionsResponse>(UserErrors.NotFound)
+            : Result.Success(permissions);
+    }
+
+    public HashSet<string> GetPermissionsFromRoles(IEnumerable<string> roles)
+    {
+        return [.. roles.SelectMany(RolePermissions.For)];
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, ProviderMemberRole>> GetProviderMembershipsAsync(
+        Guid userId,
+        CancellationToken cancellationToken) =>
+        await cacheService.GetOrCreateAsync(
+            ProviderMembershipCache.MembershipsKey(userId),
+            async token => await ReadMembershipsAsync(userId, token),
+            ProviderMembershipCache.Expiration,
+            [ProviderMembershipCache.UserTag(userId)],
+            cancellationToken);
+
+    private async Task<PermissionsResponse?> ReadPermissionsAsync(Guid userId, CancellationToken cancellationToken)
+    {
         await using DbConnection dbConnection = await dbConnectionFactory.OpenConnectionAsync();
 
         const string sql = $"""
-                SELECT 
+                SELECT
                     u.id AS {nameof(UserRow.Id)},
                     COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), ARRAY[]::text[])
                         AS {nameof(UserRow.Roles)}
@@ -35,24 +67,37 @@ internal sealed class PermissionService(
             """;
 
         UserRow? user = await dbConnection.QuerySingleOrDefaultAsync<UserRow>(
-            new CommandDefinition(sql, new { UserId = id }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
 
-        if (user is null)
-        {
-            return Result.Failure<PermissionsResponse>(UserErrors.NotFound);
-        }
-        HashSet<string> rolePermissions = GetPermissionsFromRoles(user.Roles);
-        return Result.Success(new PermissionsResponse(user.Id, rolePermissions));
+        return user is null ? null : new PermissionsResponse(user.Id, GetPermissionsFromRoles(user.Roles));
     }
 
-    public HashSet<string> GetPermissionsFromRoles(IEnumerable<string> roles)
+    // A concrete dictionary, so the cache can serialize it
+    private async Task<Dictionary<Guid, ProviderMemberRole>> ReadMembershipsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return [.. roles.SelectMany(RolePermissions.For)];
+        await using DbConnection dbConnection = await dbConnectionFactory.OpenConnectionAsync();
+
+        const string sql = $"""
+                SELECT provider_id AS {nameof(MembershipRow.ProviderId)}, role AS {nameof(MembershipRow.Role)}
+                FROM provider_members
+                WHERE user_id = @UserId
+            """;
+
+        IEnumerable<MembershipRow> rows = await dbConnection.QueryAsync<MembershipRow>(
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+
+        return rows.ToDictionary(r => r.ProviderId, r => Enum.Parse<ProviderMemberRole>(r.Role));
     }
 
     private sealed class UserRow
     {
         public Guid Id { get; init; }
         public string[] Roles { get; init; } = [];
+    }
+
+    private sealed class MembershipRow
+    {
+        public Guid ProviderId { get; init; }
+        public string Role { get; init; } = string.Empty;
     }
 }

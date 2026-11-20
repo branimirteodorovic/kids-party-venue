@@ -18,6 +18,7 @@ public sealed class Provider : Entity
     public const int DescriptionMaxLength = 5000;
 
     private readonly List<ProviderAmenity> _amenities = [];
+    private readonly List<ProviderMember> _members = [];
 
     private Provider()
     {
@@ -54,6 +55,9 @@ public sealed class Provider : Entity
 
     /// <summary>Venues only until P2.11; empty until the provider marks some.</summary>
     public IReadOnlyCollection<ProviderAmenity> Amenities => _amenities;
+
+    /// <summary>The users who run the profile; empty while it is unclaimed, and never without an owner once claimed.</summary>
+    public IReadOnlyCollection<ProviderMember> Members => _members;
 
     public ProviderStatus Status { get; private set; }
 
@@ -200,6 +204,51 @@ public sealed class Provider : Entity
         {
             UpdatedAtUtc = utcNow;
         }
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Adds a user to the people who run the provider. It sets <see cref="UpdatedAtUtc"/>, so the row version moves and a
+    /// concurrent membership change is caught.
+    /// </summary>
+    public Result AddMember(Guid userId, ProviderMemberRole role, DateTime utcNow)
+    {
+        if (!Enum.IsDefined(role))
+        {
+            return Result.Failure(ProviderErrors.UnknownMemberRole);
+        }
+
+        if (_members.Exists(m => m.UserId == userId))
+        {
+            return Result.Failure(ProviderErrors.AlreadyMember);
+        }
+
+        _members.Add(ProviderMember.Create(Id, userId, role, utcNow));
+        UpdatedAtUtc = utcNow;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Removes a member, unless they are the only owner. It sets <see cref="UpdatedAtUtc"/>, so two owners removing each
+    /// other at the same time can't both succeed and leave the provider without one.
+    /// </summary>
+    public Result RemoveMember(Guid userId, DateTime utcNow)
+    {
+        ProviderMember? member = _members.Find(m => m.UserId == userId);
+        if (member is null)
+        {
+            return Result.Failure(ProviderErrors.MemberNotFound);
+        }
+
+        if (member.Role == ProviderMemberRole.Owner && _members.Count(m => m.Role == ProviderMemberRole.Owner) == 1)
+        {
+            return Result.Failure(ProviderErrors.LastOwner);
+        }
+
+        _members.Remove(member);
+        UpdatedAtUtc = utcNow;
 
         return Result.Success();
     }

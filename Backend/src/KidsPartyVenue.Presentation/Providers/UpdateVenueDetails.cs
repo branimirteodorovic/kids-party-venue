@@ -39,7 +39,7 @@ internal sealed class UpdateVenueDetails : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization(Permissions.ProvidersManageAny)
+        .RequireAuthorization(AuthorizationPolicies.ProviderMember)
         .WithTags(Tags.Providers);
     }
 

@@ -14,7 +14,12 @@ internal static class AuthorizationExtensions
 
         services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
+        services.AddTransient<IAuthorizationHandler, ProviderMemberAuthorizationHandler>();
+
         services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AuthorizationPolicies.ProviderMember, policy => policy.AddRequirements(new ProviderMemberRequirement()));
 
         services.AddScoped<IPermissionService, PermissionService>();
 

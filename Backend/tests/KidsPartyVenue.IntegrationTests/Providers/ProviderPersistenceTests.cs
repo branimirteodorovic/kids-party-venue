@@ -15,6 +15,7 @@ using KidsPartyVenue.Domain.Venues;
 using KidsPartyVenue.Infrastructure.Database;
 using KidsPartyVenue.Infrastructure.Identity;
 using KidsPartyVenue.IntegrationTests.Abstractions;
+using KidsPartyVenue.IntegrationTests.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -548,6 +549,99 @@ public sealed class ProviderPersistenceTests(IntegrationTestWebAppFactory factor
         // Assert
         List<Guid> left = await GetAmenityIdsAsync(provider.Id);
         left.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Members_ShouldLoadWithProvider_WhenTheyAreAdded()
+    {
+        // Arrange
+        Guid userId = (await HttpClient.RegisterAndLoginAsync(Faker)).UserId;
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.AddMember(userId, ProviderMemberRole.Owner, UtcNowInMicroseconds());
+
+        // Act
+        await SaveAsync(provider);
+
+        // Assert
+        using IServiceScope scope = _factory.Services.CreateScope();
+        Provider saved = (await scope.ServiceProvider.GetRequiredService<IProviderRepository>()
+            .GetByIdAsync(provider.Id, CancellationToken.None))!;
+        saved.Members.Should().BeEquivalentTo(provider.Members);
+    }
+
+    [Fact]
+    public async Task Members_ShouldBeRejected_WhenUserDoesNotExist()
+    {
+        // Arrange
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.AddMember(Guid.CreateVersion7(), ProviderMemberRole.Owner, DateTime.UtcNow);
+
+        // Act
+        Func<Task> act = () => SaveAsync(provider);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, ForeignKeyViolation);
+        error.ConstraintName.Should().Be("fk_provider_members_users_user_id");
+    }
+
+    [Fact]
+    public async Task Members_ShouldBeRejected_WhenRowIsDuplicated()
+    {
+        // Arrange
+        Guid userId = (await HttpClient.RegisterAndLoginAsync(Faker)).UserId;
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.AddMember(userId, ProviderMemberRole.Owner, DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act: past the domain, which never adds the same user twice
+        Func<Task> act = async () =>
+        {
+            using IServiceScope scope = _factory.Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>().Database.ExecuteSqlAsync(
+                $"INSERT INTO provider_members (provider_id, user_id, role, joined_at_utc) VALUES ({provider.Id}, {userId}, 'Owner', now())");
+        };
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, UniqueViolation);
+        error.ConstraintName.Should().Be("pk_provider_members");
+    }
+
+    [Fact]
+    public async Task DeleteUser_ShouldFail_WhenUserIsAMember()
+    {
+        // Arrange
+        Guid userId = (await HttpClient.RegisterAndLoginAsync(Faker)).UserId;
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.AddMember(userId, ProviderMemberRole.Owner, DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act
+        Func<Task> act = () => DeleteInRolledBackTransactionAsync("DELETE FROM identity.users WHERE id = {0}", userId);
+
+        // Assert
+        PostgresException error = await ShouldFailInDatabase(act, RestrictViolation);
+        error.ConstraintName.Should().Be("fk_provider_members_users_user_id");
+    }
+
+    [Fact]
+    public async Task DeleteProvider_ShouldDeleteItsMembers()
+    {
+        // Arrange
+        Guid userId = (await HttpClient.RegisterAndLoginAsync(Faker)).UserId;
+        Provider provider = await CreateInCityWithoutDistrictsAsync(UniqueSlug());
+        provider.AddMember(userId, ProviderMemberRole.Owner, DateTime.UtcNow);
+        await SaveAsync(provider);
+
+        // Act
+        using (IServiceScope scope = _factory.Services.CreateScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<KidsPartyVenueDbContext>().Database.ExecuteSqlAsync(
+                $"DELETE FROM providers WHERE id = {provider.Id}");
+        }
+
+        // Assert
+        bool left = await DbContext.Set<ProviderMember>().AsNoTracking().AnyAsync(m => m.ProviderId == provider.Id);
+        left.Should().BeFalse();
     }
 
     [Fact]

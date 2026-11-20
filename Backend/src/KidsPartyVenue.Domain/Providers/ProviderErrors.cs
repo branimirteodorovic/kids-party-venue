@@ -19,4 +19,8 @@ public static class ProviderErrors
     public static readonly Error LocationOutsideSerbia = Error.Validation("Providers.LocationOutsideSerbia", "Location must be in Serbia");
     public static readonly Error VenueDetailsNotForCategory = Error.Validation("Providers.VenueDetailsNotForCategory", "Only venues have venue details");
     public static readonly Error AmenitiesNotForCategory = Error.Validation("Providers.AmenitiesNotForCategory", "Only venues have amenities");
+    public static readonly Error UnknownMemberRole = Error.Validation("Providers.UnknownMemberRole", "Member role is not supported");
+    public static readonly Error AlreadyMember = Error.Conflict("Providers.AlreadyMember", "The user is already a member of the provider");
+    public static readonly Error MemberNotFound = Error.NotFound("Providers.MemberNotFound", "The user is not a member of the provider");
+    public static readonly Error LastOwner = Error.Conflict("Providers.LastOwner", "The provider's only owner can't be removed");
 }

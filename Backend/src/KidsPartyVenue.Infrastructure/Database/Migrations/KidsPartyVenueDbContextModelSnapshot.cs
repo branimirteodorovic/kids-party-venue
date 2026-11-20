@@ -1526,15 +1526,15 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
 
                     b.ToTable("providers", null, t =>
                         {
-                            t.HasCheckConstraint("ck_providers_booking_deposit", "booking_deposit_type IS NULL\nOR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)\nOR (booking_deposit_type IN ('Percentage', 'FixedAmount')\n    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)");
+                            t.HasCheckConstraint("ck_providers_booking_deposit", "booking_deposit_type IS NULL\r\nOR (booking_deposit_type = 'None' AND booking_deposit_value IS NULL AND booking_deposit_due_days IS NULL)\r\nOR (booking_deposit_type IN ('Percentage', 'FixedAmount')\r\n    AND booking_deposit_value IS NOT NULL AND booking_deposit_due_days IS NOT NULL)");
 
-                            t.HasCheckConstraint("ck_providers_booking_policy_complete", "(booking_deposit_type IS NULL AND booking_deposit_value IS NULL\n    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)\nOR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)");
+                            t.HasCheckConstraint("ck_providers_booking_policy_complete", "(booking_deposit_type IS NULL AND booking_deposit_value IS NULL\r\n    AND booking_deposit_due_days IS NULL AND booking_free_cancellation_days IS NULL)\r\nOR (booking_deposit_type IS NOT NULL AND booking_free_cancellation_days IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_providers_venue_age_range", "venue_min_age <= venue_max_age");
 
                             t.HasCheckConstraint("ck_providers_venue_details_category", "category = 'Venue' OR venue_max_children IS NULL");
 
-                            t.HasCheckConstraint("ck_providers_venue_details_complete", "(venue_max_children IS NULL AND venue_max_adults IS NULL AND venue_min_age IS NULL\n    AND venue_max_age IS NULL AND venue_outside_catering IS NULL AND venue_outside_cake IS NULL\n    AND venue_food_service IS NULL AND venue_has_own_animator IS NULL\n    AND venue_has_own_photographer IS NULL AND venue_has_smoking_area IS NULL)\nOR (venue_max_children IS NOT NULL AND venue_min_age IS NOT NULL AND venue_max_age IS NOT NULL\n    AND venue_outside_catering IS NOT NULL AND venue_outside_cake IS NOT NULL\n    AND venue_food_service IS NOT NULL AND venue_has_own_animator IS NOT NULL\n    AND venue_has_own_photographer IS NOT NULL AND venue_has_smoking_area IS NOT NULL)");
+                            t.HasCheckConstraint("ck_providers_venue_details_complete", "(venue_max_children IS NULL AND venue_max_adults IS NULL AND venue_min_age IS NULL\r\n    AND venue_max_age IS NULL AND venue_outside_catering IS NULL AND venue_outside_cake IS NULL\r\n    AND venue_food_service IS NULL AND venue_has_own_animator IS NULL\r\n    AND venue_has_own_photographer IS NULL AND venue_has_smoking_area IS NULL)\r\nOR (venue_max_children IS NOT NULL AND venue_min_age IS NOT NULL AND venue_max_age IS NOT NULL\r\n    AND venue_outside_catering IS NOT NULL AND venue_outside_cake IS NOT NULL\r\n    AND venue_food_service IS NOT NULL AND venue_has_own_animator IS NOT NULL\r\n    AND venue_has_own_photographer IS NOT NULL AND venue_has_smoking_area IS NOT NULL)");
                         });
                 });
 
@@ -1555,6 +1555,35 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasDatabaseName("ix_provider_amenities_amenity_id");
 
                     b.ToTable("provider_amenities", (string)null);
+                });
+
+            modelBuilder.Entity("KidsPartyVenue.Domain.Providers.ProviderMember", b =>
+                {
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("provider_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime>("JoinedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at_utc");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.HasKey("ProviderId", "UserId")
+                        .HasName("pk_provider_members");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_provider_members_user_id");
+
+                    b.ToTable("provider_members", (string)null);
                 });
 
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
@@ -3527,6 +3556,23 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
                         .HasConstraintName("fk_provider_amenities_providers_provider_id");
                 });
 
+            modelBuilder.Entity("KidsPartyVenue.Domain.Providers.ProviderMember", b =>
+                {
+                    b.HasOne("KidsPartyVenue.Domain.Providers.Provider", null)
+                        .WithMany("Members")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_members_providers_provider_id");
+
+                    b.HasOne("KidsPartyVenue.Infrastructure.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_members_users_user_id");
+                });
+
             modelBuilder.Entity("KidsPartyVenue.Domain.Users.UserProfile", b =>
                 {
                     b.HasOne("KidsPartyVenue.Infrastructure.Identity.User", null)
@@ -3612,6 +3658,8 @@ namespace KidsPartyVenue.Infrastructure.Database.Migrations
             modelBuilder.Entity("KidsPartyVenue.Domain.Providers.Provider", b =>
                 {
                     b.Navigation("Amenities");
+
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }
