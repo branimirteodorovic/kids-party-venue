@@ -1,6 +1,6 @@
 using KidsPartyVenue.Domain.BookingPolicies;
 
-namespace KidsPartyVenue.Application.Providers.GetProviderForEditing;
+namespace KidsPartyVenue.Application.Providers;
 
 public sealed record BookingPolicyResponse(
     DepositType DepositType,

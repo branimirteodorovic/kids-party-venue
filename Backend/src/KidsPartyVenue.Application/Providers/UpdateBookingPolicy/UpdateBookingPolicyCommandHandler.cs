@@ -1,4 +1,5 @@
 using KidsPartyVenue.Application.Abstractions.Data;
+using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Exceptions;
 using KidsPartyVenue.Application.Messaging;
@@ -11,7 +12,8 @@ namespace KidsPartyVenue.Application.Providers.UpdateBookingPolicy;
 internal sealed class UpdateBookingPolicyCommandHandler(
     IProviderRepository providerRepository,
     IUnitOfWork unitOfWork,
-    IDateTimeProvider dateTimeProvider) : ICommandHandler<UpdateBookingPolicyCommand, ProviderVersionResponse>
+    IDateTimeProvider dateTimeProvider,
+    ICacheService cacheService) : ICommandHandler<UpdateBookingPolicyCommand, ProviderVersionResponse>
 {
     public async Task<Result<ProviderVersionResponse>> Handle(UpdateBookingPolicyCommand command, CancellationToken cancellationToken)
     {
@@ -47,6 +49,8 @@ internal sealed class UpdateBookingPolicyCommandHandler(
         {
             return Result.Failure<ProviderVersionResponse>(ProviderErrors.ConcurrencyConflict);
         }
+
+        await cacheService.RemoveByTagAsync(ProviderCache.Tag(provider.Id), cancellationToken);
 
         return new ProviderVersionResponse(providerRepository.GetVersion(provider));
     }

@@ -1,6 +1,6 @@
 using KidsPartyVenue.Domain.Venues;
 
-namespace KidsPartyVenue.Application.Providers.GetProviderForEditing;
+namespace KidsPartyVenue.Application.Providers;
 
 public sealed record VenueDetailsResponse(
     int MaxChildren,

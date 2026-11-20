@@ -1,5 +1,6 @@
 using System.Net;
 using AwesomeAssertions;
+using KidsPartyVenue.Application.Providers;
 using KidsPartyVenue.Application.Providers.GetProviderForEditing;
 using KidsPartyVenue.Domain.Amenities;
 using KidsPartyVenue.Domain.BookingPolicies;

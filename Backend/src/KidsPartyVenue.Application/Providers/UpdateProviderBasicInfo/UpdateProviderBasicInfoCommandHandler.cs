@@ -1,4 +1,5 @@
 using KidsPartyVenue.Application.Abstractions.Data;
+using KidsPartyVenue.Application.Caching;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Exceptions;
 using KidsPartyVenue.Application.Messaging;
@@ -15,7 +16,8 @@ internal sealed class UpdateProviderBasicInfoCommandHandler(
     ICityRepository cityRepository,
     IDistrictRepository districtRepository,
     IUnitOfWork unitOfWork,
-    IDateTimeProvider dateTimeProvider) : ICommandHandler<UpdateProviderBasicInfoCommand, ProviderVersionResponse>
+    IDateTimeProvider dateTimeProvider,
+    ICacheService cacheService) : ICommandHandler<UpdateProviderBasicInfoCommand, ProviderVersionResponse>
 {
     public async Task<Result<ProviderVersionResponse>> Handle(UpdateProviderBasicInfoCommand command, CancellationToken cancellationToken)
     {
@@ -91,6 +93,8 @@ internal sealed class UpdateProviderBasicInfoCommandHandler(
         {
             return Result.Failure<ProviderVersionResponse>(ProviderErrors.ConcurrencyConflict);
         }
+
+        await cacheService.RemoveByTagAsync(ProviderCache.Tag(provider.Id), cancellationToken);
 
         return new ProviderVersionResponse(providerRepository.GetVersion(provider));
     }
