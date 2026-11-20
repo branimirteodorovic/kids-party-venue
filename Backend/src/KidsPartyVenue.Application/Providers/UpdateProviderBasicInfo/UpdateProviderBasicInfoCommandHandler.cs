@@ -4,7 +4,6 @@ using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Exceptions;
 using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Domain;
-using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
@@ -13,8 +12,7 @@ namespace KidsPartyVenue.Application.Providers.UpdateProviderBasicInfo;
 
 internal sealed class UpdateProviderBasicInfoCommandHandler(
     IProviderRepository providerRepository,
-    ICityRepository cityRepository,
-    IDistrictRepository districtRepository,
+    IProviderPlaceLookup placeLookup,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
     ICacheService cacheService) : ICommandHandler<UpdateProviderBasicInfoCommand, ProviderVersionResponse>
@@ -32,24 +30,11 @@ internal sealed class UpdateProviderBasicInfoCommandHandler(
             return Result.Failure<ProviderVersionResponse>(ProviderErrors.ConcurrencyConflict);
         }
 
-        if (!await cityRepository.ExistsAsync(command.CityId, cancellationToken))
+        Result<ProviderPlace> placeResult = await placeLookup.FindAsync(command.CityId, command.DistrictId, cancellationToken);
+        if (placeResult.IsFailure)
         {
-            return Result.Failure<ProviderVersionResponse>(CityErrors.NotFound);
+            return Result.Failure<ProviderVersionResponse>(placeResult.Error);
         }
-
-        District? district = null;
-        if (command.DistrictId is Guid districtId)
-        {
-            district = await districtRepository.GetByIdAsync(districtId, cancellationToken);
-            if (district is null)
-            {
-                return Result.Failure<ProviderVersionResponse>(DistrictErrors.NotFound);
-            }
-        }
-
-        // A given district answers it already: either it is in the city, or ChangeBasicInfo rejects it as not in the city
-        bool cityHasDistricts = district is not null
-            || await districtRepository.AnyInCityAsync(command.CityId, cancellationToken);
 
         PhoneNumber? phone = null;
         if (!string.IsNullOrWhiteSpace(command.Phone))
@@ -74,8 +59,8 @@ internal sealed class UpdateProviderBasicInfoCommandHandler(
             command.Description,
             command.Address,
             command.CityId,
-            district,
-            cityHasDistricts,
+            placeResult.Value.District,
+            placeResult.Value.CityHasDistricts,
             locationResult.Value,
             phone,
             dateTimeProvider.UtcNow);

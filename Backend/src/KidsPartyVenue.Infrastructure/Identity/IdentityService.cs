@@ -55,6 +55,34 @@ internal sealed class IdentityService(
         return Result.Success();
     }
 
+    public async Task<Result> EnsureProviderMemberRoleAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        User? user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return Result.Failure(UserErrors.NotFound);
+        }
+
+        if (await userManager.IsInRoleAsync(user, Role.ProviderMember))
+        {
+            return Result.Success();
+        }
+
+        IdentityResult roleResult = await userManager.AddToRoleAsync(user, Role.ProviderMember);
+        if (!roleResult.Succeeded)
+        {
+            logger.LogError(
+                "Assigning role {Role} to {UserId} failed: {Errors}",
+                Role.ProviderMember,
+                user.Id,
+                roleResult.Errors.Select(e => e.Code));
+
+            return Result.Failure(UserErrors.RoleAssignmentFailed);
+        }
+
+        return Result.Success();
+    }
+
     public async Task<Result<AuthTokens>> LoginAsync(string email, string password, CancellationToken cancellationToken)
     {
         User? user = await userManager.FindByEmailAsync(email.Trim());

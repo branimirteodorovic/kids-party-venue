@@ -2,7 +2,6 @@ using KidsPartyVenue.Application.Abstractions.Data;
 using KidsPartyVenue.Application.Clock;
 using KidsPartyVenue.Application.Messaging;
 using KidsPartyVenue.Domain;
-using KidsPartyVenue.Domain.Cities;
 using KidsPartyVenue.Domain.Geography;
 using KidsPartyVenue.Domain.Phones;
 using KidsPartyVenue.Domain.Providers;
@@ -10,33 +9,19 @@ using KidsPartyVenue.Domain.Providers;
 namespace KidsPartyVenue.Application.Providers.CreateProvider;
 
 internal sealed class CreateProviderCommandHandler(
-    ICityRepository cityRepository,
-    IDistrictRepository districtRepository,
     IProviderRepository providerRepository,
+    IProviderPlaceLookup placeLookup,
     IProviderSlugGenerator slugGenerator,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider) : ICommandHandler<CreateProviderCommand, CreateProviderResponse>
 {
     public async Task<Result<CreateProviderResponse>> Handle(CreateProviderCommand command, CancellationToken cancellationToken)
     {
-        if (!await cityRepository.ExistsAsync(command.CityId, cancellationToken))
+        Result<ProviderPlace> placeResult = await placeLookup.FindAsync(command.CityId, command.DistrictId, cancellationToken);
+        if (placeResult.IsFailure)
         {
-            return Result.Failure<CreateProviderResponse>(CityErrors.NotFound);
+            return Result.Failure<CreateProviderResponse>(placeResult.Error);
         }
-
-        District? district = null;
-        if (command.DistrictId is Guid districtId)
-        {
-            district = await districtRepository.GetByIdAsync(districtId, cancellationToken);
-            if (district is null)
-            {
-                return Result.Failure<CreateProviderResponse>(DistrictErrors.NotFound);
-            }
-        }
-
-        // A given district answers it already: either it is in the city, or Create rejects it as not in the city
-        bool cityHasDistricts = district is not null
-            || await districtRepository.AnyInCityAsync(command.CityId, cancellationToken);
 
         PhoneNumber? phone = null;
         if (!string.IsNullOrWhiteSpace(command.Phone))
@@ -65,8 +50,8 @@ internal sealed class CreateProviderCommandHandler(
             command.Description,
             command.Address,
             command.CityId,
-            district,
-            cityHasDistricts,
+            placeResult.Value.District,
+            placeResult.Value.CityHasDistricts,
             locationResult.Value,
             phone,
             isClaimed: false,

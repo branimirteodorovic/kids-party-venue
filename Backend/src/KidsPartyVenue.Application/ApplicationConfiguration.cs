@@ -42,6 +42,7 @@ public static class ApplicationConfiguration
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
         services.AddScoped<IProviderSlugGenerator, ProviderSlugGenerator>();
+        services.AddScoped<IProviderPlaceLookup, ProviderPlaceLookup>();
 
         // Error messages stay in English; the frontend translates errors by code
         ValidatorOptions.Global.LanguageManager.Enabled = false;
